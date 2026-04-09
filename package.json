@@ -1,0 +1,11 @@
+{
+  "name": "future-org-design",
+  "private": true,
+  "description": "ODaaS research and lat.md knowledge graph",
+  "scripts": {
+    "lat:check": "lat check"
+  },
+  "devDependencies": {
+    "lat.md": "^0.11.0"
+  }
+}
