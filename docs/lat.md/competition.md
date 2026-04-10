@@ -28,7 +28,7 @@ Quick reference to major named competitors; deep AI notes sit in [[ai-and-data-l
 | **Functionly** | Accessible pricing; AI-assisted roles | — |
 | **Visier Org Design** | Analytics-led design launch | [[strategic-gaps#Prescriptive analytics gap]] |
 | **Beamible** | Work/task layer | [[strategic-gaps#Ten critical market gaps]] |
-| **Agentnoon** | AI-native; Dayforce acquisition | `.devnotes` compilation |
+| **Agentnoon** | AI-native; Dayforce acquisition | `docs/.devnotes` compilation |
 
 ## Consulting market structure
 

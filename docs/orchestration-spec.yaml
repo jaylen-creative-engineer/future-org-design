@@ -1,0 +1,241 @@
+version: "1.0"
+name: "future-org-design-delivery"
+description: "Agent orchestration DAG for service-first ODaaS delivery"
+
+context:
+  knowledge_graph_root: "docs/lat.md"
+  research_root: "docs/.devnotes"
+  framework: "Next.js (TypeScript, App Router)"
+  agent_harness: "Google ADK"
+
+global_requirements:
+  - "Read docs/lat.md/lat.md and relevant linked pages before implementation tasks."
+  - "Update docs/lat.md pages after implementation tasks complete."
+  - "Implement in modular, testable segments."
+  - "Service/DB and functional validation must precede API/UI work."
+
+lanes:
+  - id: "lane_platform"
+    name: "Platform and CI"
+  - id: "lane_data"
+    name: "Data and Persistence"
+  - id: "lane_domain"
+    name: "Domain and ADK"
+  - id: "lane_api"
+    name: "API Contracts and Routes"
+  - id: "lane_experience"
+    name: "Experience and E2E"
+  - id: "lane_hardening"
+    name: "Hardening and Release"
+
+tasks:
+  - id: "A1_scaffold"
+    lane: "lane_platform"
+    description: "Create Next.js scaffold and baseline project structure."
+    depends_on: []
+    outputs:
+      - "App boots locally"
+      - "Folder structure for services, repositories, routes, ui"
+
+  - id: "A2_tooling_ci"
+    lane: "lane_platform"
+    description: "Set up lint, test, build scripts and CI pipeline."
+    depends_on:
+      - "A1_scaffold"
+    outputs:
+      - "CI runs lint/test/build"
+      - "Baseline quality gates are enforced"
+
+  - id: "A3_test_harness"
+    lane: "lane_platform"
+    description: "Set up test harness structure for unit/integration/functional tests."
+    depends_on:
+      - "A2_tooling_ci"
+    outputs:
+      - "Test folders and runners ready"
+      - "Fixtures strategy documented"
+
+  - id: "B1_schema_design"
+    lane: "lane_data"
+    description: "Define core schema for org, roles, teams, scenarios, recommendations, metrics."
+    depends_on:
+      - "A2_tooling_ci"
+    outputs:
+      - "Schema spec"
+      - "Entity relationship definitions"
+
+  - id: "B2_migrations_repos"
+    lane: "lane_data"
+    description: "Implement DB migrations and repository interfaces/adapters."
+    depends_on:
+      - "B1_schema_design"
+      - "A3_test_harness"
+    outputs:
+      - "Versioned migrations"
+      - "Repository interfaces and implementations"
+
+  - id: "B3_repo_integration_tests"
+    lane: "lane_data"
+    description: "Add integration tests for repositories and migration lifecycle."
+    depends_on:
+      - "B2_migrations_repos"
+    outputs:
+      - "Repository integration tests passing"
+      - "Migration rollback validation"
+
+  - id: "C1_service_contracts"
+    lane: "lane_domain"
+    description: "Define service contracts and boundaries for domain modules."
+    depends_on:
+      - "A2_tooling_ci"
+      - "B1_schema_design"
+    outputs:
+      - "OrgModel/Scenario/Recommendation/Monitoring interfaces"
+
+  - id: "C2_adk_adapter"
+    lane: "lane_domain"
+    description: "Implement Google ADK adapter interface and mocks."
+    depends_on:
+      - "C1_service_contracts"
+      - "A3_test_harness"
+    outputs:
+      - "ADK adapter contract"
+      - "Mock adapter for deterministic tests"
+
+  - id: "C3_service_implementation"
+    lane: "lane_domain"
+    description: "Implement domain services using repositories and ADK adapter."
+    depends_on:
+      - "C1_service_contracts"
+      - "B2_migrations_repos"
+      - "C2_adk_adapter"
+    outputs:
+      - "Domain services implemented"
+      - "No UI/API coupling in domain layer"
+
+  - id: "C4_functional_validation"
+    lane: "lane_domain"
+    description: "Add functional workflow tests across service orchestration."
+    depends_on:
+      - "C3_service_implementation"
+      - "B3_repo_integration_tests"
+    outputs:
+      - "Functional validation suite passing"
+
+  - id: "D1_api_contracts"
+    lane: "lane_api"
+    description: "Define API schemas and error contracts."
+    depends_on:
+      - "C4_functional_validation"
+    outputs:
+      - "Route request/response contracts"
+      - "Error model conventions"
+
+  - id: "D2_route_handlers"
+    lane: "lane_api"
+    description: "Implement Next.js route handlers that delegate to services."
+    depends_on:
+      - "D1_api_contracts"
+    outputs:
+      - "Thin API handlers"
+      - "Service-driven route behavior"
+
+  - id: "D3_api_tests"
+    lane: "lane_api"
+    description: "Implement API contract and failure-path tests."
+    depends_on:
+      - "D2_route_handlers"
+    outputs:
+      - "API contract tests passing"
+
+  - id: "E1_experience_flows"
+    lane: "lane_experience"
+    description: "Build UI flows for snapshot, scenarios, recommendations, monitoring."
+    depends_on:
+      - "D3_api_tests"
+    outputs:
+      - "API-backed user workflows"
+
+  - id: "E2_e2e_tests"
+    lane: "lane_experience"
+    description: "Add end-to-end tests for critical user journeys."
+    depends_on:
+      - "E1_experience_flows"
+    outputs:
+      - "Core journey regression suite"
+
+  - id: "H1_observability_security"
+    lane: "lane_hardening"
+    description: "Implement observability, security controls, and performance checks."
+    depends_on:
+      - "D3_api_tests"
+      - "E2_e2e_tests"
+    outputs:
+      - "Logs/metrics/tracing baseline"
+      - "Auth/RBAC/audit baseline"
+      - "Performance baseline"
+
+  - id: "KG1_update_graph"
+    lane: "lane_platform"
+    description: "Update docs/lat.md with architectural and workflow changes."
+    depends_on:
+      - "H1_observability_security"
+    outputs:
+      - "Knowledge graph updated with new architecture and constraints"
+
+gates:
+  - id: "gate_a_to_b_c"
+    requires:
+      - "A2_tooling_ci"
+    criteria:
+      - "lint/test/build green in CI"
+
+  - id: "gate_b_to_c"
+    requires:
+      - "B2_migrations_repos"
+      - "B3_repo_integration_tests"
+    criteria:
+      - "Repository interfaces stable"
+      - "Migration lifecycle validated"
+
+  - id: "gate_c_to_d"
+    requires:
+      - "C4_functional_validation"
+    criteria:
+      - "Service contracts stable for milestone"
+      - "Functional tests green"
+
+  - id: "gate_d_to_e"
+    requires:
+      - "D3_api_tests"
+    criteria:
+      - "API contracts and error shapes stable"
+
+parallel_groups:
+  - id: "pg_after_a2"
+    start_when_all_complete:
+      - "A2_tooling_ci"
+    run:
+      - "A3_test_harness"
+      - "B1_schema_design"
+      - "C1_service_contracts"
+
+  - id: "pg_after_b2_c2"
+    start_when_all_complete:
+      - "B2_migrations_repos"
+      - "C2_adk_adapter"
+    run:
+      - "B3_repo_integration_tests"
+      - "C3_service_implementation"
+
+  - id: "pg_after_d3"
+    start_when_all_complete:
+      - "D3_api_tests"
+    run:
+      - "E1_experience_flows"
+
+runner_policy:
+  max_concurrent_lanes: 3
+  default_retry_count: 1
+  block_on_gate_failure: true
+  require_test_evidence: true
