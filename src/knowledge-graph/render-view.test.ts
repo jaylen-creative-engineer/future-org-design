@@ -44,10 +44,13 @@ describe("renderKnowledgeGraphHtml", () => {
           targetUnits: 10,
           builtUnits: 4,
           status: "in_progress",
+          notes: "Graph parser and viewer are available.",
         },
       ],
     });
     expect(html).toContain("Product promise vs build progress");
+    expect(html).toContain("Currently available features");
+    expect(html).toContain("Graph parser and viewer are available.");
     expect(html).toContain("target units");
     expect(html).toContain("Core intelligence");
     expect(html).toContain("40%");

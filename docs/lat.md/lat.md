@@ -36,7 +36,7 @@ One wiki page per theme; follow links to move across the graph without reading e
 
 TypeScript in `src/knowledge-graph/` loads this directory and parses wikilinks into a graph. Viewer output and the build-progress plan live in `docs/knowledge-graph-view/` (not in this folder, so `lat` checks stay markdown-only).
 
-`npm test` fails if that viewer drifts from the generator; run `npm run graph:view` after edits to wiki pages here, `docs/knowledge-graph-view/intelligence-plan.json`, or graph code. Open `docs/knowledge-graph-view/knowledge-graph.html` for the table, product promise vs build progress, and Mermaid export (`knowledge-graph.mmd`). The same generator emits a stable JSON snapshot (`knowledge-graph.json`) for programmatic consumers and diffing; use `diffKnowledgeGraphs` in `src/knowledge-graph/` to compare two loaded graphs (for example before/after a wiki edit). Workstream A also now includes a Next.js App Router scaffold in `app/` for future API and UI increments, while graph tooling stays decoupled in `src/knowledge-graph/`.
+`npm test` fails if that viewer drifts from the generator; run `npm run graph:view` after edits to wiki pages here, `docs/knowledge-graph-view/intelligence-plan.json`, or graph code. Open `docs/knowledge-graph-view/knowledge-graph.html` for the table, product promise vs build progress (including currently available features from plan notes), and Mermaid export (`knowledge-graph.mmd`). The same generator emits a stable JSON snapshot (`knowledge-graph.json`) for programmatic consumers and diffing; use `diffKnowledgeGraphs` in `src/knowledge-graph/` to compare two loaded graphs (for example before/after a wiki edit).
 
 ## Cross-cutting themes
 
