@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Knowledge graph — future-org-design</title>
+  <style>
+    :root { color-scheme: light dark; --border: #c8c8c8; --muted: #666; --bg: #fafafa; }
+    @media (prefers-color-scheme: dark) {
+      :root { --border: #444; --muted: #aaa; --bg: #121212; }
+    }
+    * { box-sizing: border-box; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 1.25rem clamp(1rem, 4vw, 2.5rem); line-height: 1.5; background: var(--bg); color: CanvasText; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+    p.lead { margin: 0 0 1rem; color: var(--muted); max-width: 52rem; }
+    .stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--muted); }
+    .stats span strong { color: CanvasText; }
+    h2 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; max-width: 52rem; }
+    th, td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    code { font-size: 0.85em; }
+    .diagram-wrap { margin-top: 1rem; overflow: auto; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; background: Canvas; }
+    .mermaid { display: flex; justify-content: center; min-height: 200px; }
+    footer { margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <h1>lat.md knowledge graph</h1>
+  <p class="lead">
+    Wiki pages under <code>docs/lat.md/</code> and their wikilinks. Each page is a <strong>domain of intelligence</strong> to align product and services with (thesis, market, competition, gaps, AI/data, buyers, closed-loop).
+    Higher <em>inbound</em> counts indicate hubs many other pages point at; <em>outbound</em> is how many distinct targets that page references.
+  </p>
+  <div class="stats" role="status">
+    <span><strong>8</strong> pages</span>
+    <span><strong>73</strong> edges</span>
+    <span><strong>0</strong> broken</span>
+  </div>
+
+  <h2>Domains (pages)</h2>
+  <table>
+    <thead>
+      <tr><th>Title</th><th>Page id</th><th>Outbound</th><th>Inbound</th></tr>
+    </thead>
+    <tbody>
+          <tr><td>AI and data layer</td><td><code>ai-and-data-layer</code></td><td class="num">7</td><td class="num">10</td></tr>
+          <tr><td>Buyers and pain</td><td><code>buyers-and-pain</code></td><td class="num">6</td><td class="num">9</td></tr>
+          <tr><td>Closed-loop value chain</td><td><code>closed-loop-value-chain</code></td><td class="num">9</td><td class="num">5</td></tr>
+          <tr><td>Competitive landscape</td><td><code>competition</code></td><td class="num">6</td><td class="num">7</td></tr>
+          <tr><td>future-org-design — Knowledge graph index</td><td><code>lat</code></td><td class="num">18</td><td class="num">0</td></tr>
+          <tr><td>Market and TAM</td><td><code>market-and-tam</code></td><td class="num">7</td><td class="num">13</td></tr>
+          <tr><td>ODaaS core concepts</td><td><code>odaas-core</code></td><td class="num">10</td><td class="num">7</td></tr>
+          <tr><td>Strategic white space</td><td><code>strategic-gaps</code></td><td class="num">10</td><td class="num">22</td></tr>
+    </tbody>
+  </table>
+
+
+  <h2>Product promise vs build progress</h2>
+  <p class="lead">
+    This maps product promise domains to logic-graph pages and tracks code-complete intelligence units.
+    Unit: <code>intelligence capabilities</code>. Last update: <code>2026-04-10</code>.
+  </p>
+  <div class="stats" role="status">
+    <span><strong>74</strong> target units</span>
+    <span><strong>6</strong> built units</span>
+    <span><strong>68</strong> remaining units</span>
+    <span><strong>8%</strong> complete</span>
+    <span><strong>0/7</strong> domains complete</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Promise domain</th>
+        <th>Product promise</th>
+        <th>Logic-graph pages</th>
+        <th>Graph coverage</th>
+        <th>Target</th>
+        <th>Built</th>
+        <th>Remaining</th>
+        <th>Code complete</th>
+      </tr>
+    </thead>
+    <tbody>
+          <tr>
+            <td>Knowledge graph foundation</td>
+            <td>Continuously map ODaaS intelligence domains and dependencies.</td>
+            <td><code>lat</code>, <code>closed-loop-value-chain</code></td>
+            <td class="num">2/2</td>
+            <td class="num">8</td>
+            <td class="num">6</td>
+            <td class="num">2</td>
+            <td class="num">75%</td>
+          </tr>
+          <tr>
+            <td>Org model intelligence</td>
+            <td>Ingest and normalize organization structures and constraints.</td>
+            <td><code>odaas-core</code>, <code>market-and-tam</code>, <code>buyers-and-pain</code></td>
+            <td class="num">3/3</td>
+            <td class="num">12</td>
+            <td class="num">0</td>
+            <td class="num">12</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Scenario intelligence</td>
+            <td>Generate and score what-if organizational scenarios.</td>
+            <td><code>strategic-gaps</code>, <code>closed-loop-value-chain</code></td>
+            <td class="num">2/2</td>
+            <td class="num">12</td>
+            <td class="num">0</td>
+            <td class="num">12</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Recommendation intelligence</td>
+            <td>Produce prescriptive design recommendations from analysis + scenarios.</td>
+            <td><code>strategic-gaps</code>, <code>ai-and-data-layer</code>, <code>competition</code></td>
+            <td class="num">3/3</td>
+            <td class="num">14</td>
+            <td class="num">0</td>
+            <td class="num">14</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Monitoring intelligence</td>
+            <td>Track post-change effects and drift in a closed redesign loop.</td>
+            <td><code>closed-loop-value-chain</code>, <code>buyers-and-pain</code>, <code>ai-and-data-layer</code></td>
+            <td class="num">3/3</td>
+            <td class="num">10</td>
+            <td class="num">0</td>
+            <td class="num">10</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>API contract intelligence</td>
+            <td>Expose stable contracts for ingest, scenario, recommendation, and monitoring.</td>
+            <td><code>odaas-core</code>, <code>closed-loop-value-chain</code></td>
+            <td class="num">2/2</td>
+            <td class="num">8</td>
+            <td class="num">0</td>
+            <td class="num">8</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Experience workflow intelligence</td>
+            <td>Deliver end-user workflows from baseline through monitored decisions.</td>
+            <td><code>buyers-and-pain</code>, <code>closed-loop-value-chain</code>, <code>market-and-tam</code></td>
+            <td class="num">3/3</td>
+            <td class="num">10</td>
+            <td class="num">0</td>
+            <td class="num">10</td>
+            <td class="num">0%</td>
+          </tr>
+    </tbody>
+  </table>
+
+  <h2>Link graph</h2>
+  <div class="diagram-wrap">
+    <pre class="mermaid">flowchart TB
+  p_ai_and_data_layer["AI and data layer — ai-and-data-layer.md"]
+  p_buyers_and_pain["Buyers and pain — buyers-and-pain.md"]
+  p_closed_loop_value_chain["Closed-loop value chain — closed-loop-value-chain.md"]
+  p_competition["Competitive landscape — competition.md"]
+  p_lat["future-org-design — Knowledge graph index — lat.md"]
+  p_market_and_tam["Market and TAM — market-and-tam.md"]
+  p_odaas_core["ODaaS core concepts — odaas-core.md"]
+  p_strategic_gaps["Strategic white space — strategic-gaps.md"]
+  p_ai_and_data_layer -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_ai_and_data_layer -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_ai_and_data_layer -->|"ONA and informal organization"| p_strategic_gaps
+  p_ai_and_data_layer -->|"Team Topologies movement"| p_market_and_tam
+  p_ai_and_data_layer -->|"HCM context"| p_market_and_tam
+  p_ai_and_data_layer -->|"Human–AI teaming"| p_strategic_gaps
+  p_ai_and_data_layer -->|"ODaaS product thesis"| p_odaas_core
+  p_buyers_and_pain -->|"ODaaS product thesis"| p_odaas_core
+  p_buyers_and_pain -->|"ONA and informal organization"| p_strategic_gaps
+  p_buyers_and_pain -->|"Consultant reliance"| p_buyers_and_pain
+  p_buyers_and_pain -->|"Market entry vectors"| p_strategic_gaps
+  p_buyers_and_pain -->|"Continuous design gap"| p_buyers_and_pain
+  p_buyers_and_pain -->|"Continuous vs episodic"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"People analytics and org design"| p_market_and_tam
+  p_closed_loop_value_chain -->|"Operating model layer"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"Workforce planning disconnect"| p_market_and_tam
+  p_closed_loop_value_chain -->|"Ten critical market gaps"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_closed_loop_value_chain -->|"Who owns which slice"| p_competition
+  p_closed_loop_value_chain -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"ODaaS product thesis"| p_odaas_core
+  p_closed_loop_value_chain -->|"Continuous design gap"| p_buyers_and_pain
+  p_competition -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_competition -->|"Incumbent AI snapshots"| p_ai_and_data_layer
+  p_competition -->|"People analytics and org design"| p_market_and_tam
+  p_competition -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_competition -->|"Ten critical market gaps"| p_strategic_gaps
+  p_competition -->|"White space map (2×2)"| p_strategic_gaps
+  p_lat -->|"ODaaS product thesis"| p_odaas_core
+  p_lat -->|"Executive snapshot"| p_market_and_tam
+  p_lat -->|"Competitive tiers"| p_competition
+  p_lat -->|"Ten critical market gaps"| p_strategic_gaps
+  p_lat -->|"Intelligence stack"| p_ai_and_data_layer
+  p_lat -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_lat -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_lat --> p_odaas_core
+  p_lat --> p_market_and_tam
+  p_lat --> p_competition
+  p_lat --> p_strategic_gaps
+  p_lat --> p_ai_and_data_layer
+  p_lat --> p_buyers_and_pain
+  p_lat --> p_closed_loop_value_chain
+  p_lat -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_lat -->|"Continuous design gap"| p_buyers_and_pain
+  p_lat -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_lat -->|"ONA and informal organization"| p_strategic_gaps
+  p_market_and_tam -->|"Consulting market structure"| p_competition
+  p_market_and_tam -->|"AI and workflow redesign"| p_ai_and_data_layer
+  p_market_and_tam -->|"Consultant reliance"| p_buyers_and_pain
+  p_market_and_tam -->|"Market entry vectors"| p_strategic_gaps
+  p_market_and_tam -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_market_and_tam -->|"Team Topologies movement"| p_market_and_tam
+  p_market_and_tam -->|"Emerging AI-augmented stack"| p_ai_and_data_layer
+  p_odaas_core -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_odaas_core -->|"Who owns which slice"| p_competition
+  p_odaas_core -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_odaas_core -->|"Ten critical market gaps"| p_strategic_gaps
+  p_odaas_core -->|"Collective gap (what incumbents miss)"| p_competition
+  p_odaas_core -->|"White space map (2×2)"| p_strategic_gaps
+  p_odaas_core -->|"People analytics and org design"| p_market_and_tam
+  p_odaas_core -->|"Workforce planning disconnect"| p_market_and_tam
+  p_odaas_core -->|"Skills-based organization (SBO)"| p_ai_and_data_layer
+  p_odaas_core -->|"Team Topologies movement"| p_market_and_tam
+  p_strategic_gaps -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_strategic_gaps -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_strategic_gaps -->|"Operating model layer"| p_strategic_gaps
+  p_strategic_gaps -->|"Continuous design gap"| p_buyers_and_pain
+  p_strategic_gaps -->|"Human–AI teaming"| p_ai_and_data_layer
+  p_strategic_gaps -->|"Collective gap (what incumbents miss)"| p_competition
+  p_strategic_gaps -->|"ODaaS product thesis"| p_odaas_core
+  p_strategic_gaps -->|"People analytics and org design"| p_market_and_tam
+  p_strategic_gaps -->|"Strategic position"| p_odaas_core
+  p_strategic_gaps -->|"Team Topologies movement"| p_market_and_tam</pre>
+  </div>
+
+  <footer>Generated 2026-04-10 · Regenerate: <code>npm run graph:view</code></footer>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
+    mermaid.run({ querySelector: ".mermaid" });
+  </script>
+</body>
+</html>

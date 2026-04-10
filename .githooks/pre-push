@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Run full verify before push (typecheck, lat check, tests, graph drift check).
+set -e
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+echo "pre-push: npm run verify"
+npm run verify

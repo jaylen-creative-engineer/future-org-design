@@ -1,11 +1,24 @@
 {
   "name": "future-org-design",
   "private": true,
+  "type": "module",
   "description": "ODaaS research and lat.md knowledge graph",
   "scripts": {
-    "lat:check": "lat --dir docs check"
+    "prepare": "node scripts/git-set-hooks.mjs",
+    "git:hooks": "node scripts/git-set-hooks.mjs",
+    "lat:check": "lat --dir docs check",
+    "graph:view": "tsx src/knowledge-graph/write-graph-view.cli.ts",
+    "graph:check": "tsx src/knowledge-graph/check-graph-view.cli.ts",
+    "verify": "npm run typecheck && npm run lat:check && npm test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run && npm run graph:check",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "lat.md": "^0.11.0"
+    "@types/node": "^22.10.0",
+    "lat.md": "^0.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
   }
 }

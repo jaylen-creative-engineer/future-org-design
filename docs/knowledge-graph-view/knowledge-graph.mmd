@@ -1,0 +1,82 @@
+flowchart TB
+  p_ai_and_data_layer["AI and data layer — ai-and-data-layer.md"]
+  p_buyers_and_pain["Buyers and pain — buyers-and-pain.md"]
+  p_closed_loop_value_chain["Closed-loop value chain — closed-loop-value-chain.md"]
+  p_competition["Competitive landscape — competition.md"]
+  p_lat["future-org-design — Knowledge graph index — lat.md"]
+  p_market_and_tam["Market and TAM — market-and-tam.md"]
+  p_odaas_core["ODaaS core concepts — odaas-core.md"]
+  p_strategic_gaps["Strategic white space — strategic-gaps.md"]
+  p_ai_and_data_layer -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_ai_and_data_layer -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_ai_and_data_layer -->|"ONA and informal organization"| p_strategic_gaps
+  p_ai_and_data_layer -->|"Team Topologies movement"| p_market_and_tam
+  p_ai_and_data_layer -->|"HCM context"| p_market_and_tam
+  p_ai_and_data_layer -->|"Human–AI teaming"| p_strategic_gaps
+  p_ai_and_data_layer -->|"ODaaS product thesis"| p_odaas_core
+  p_buyers_and_pain -->|"ODaaS product thesis"| p_odaas_core
+  p_buyers_and_pain -->|"ONA and informal organization"| p_strategic_gaps
+  p_buyers_and_pain -->|"Consultant reliance"| p_buyers_and_pain
+  p_buyers_and_pain -->|"Market entry vectors"| p_strategic_gaps
+  p_buyers_and_pain -->|"Continuous design gap"| p_buyers_and_pain
+  p_buyers_and_pain -->|"Continuous vs episodic"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"People analytics and org design"| p_market_and_tam
+  p_closed_loop_value_chain -->|"Operating model layer"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"Workforce planning disconnect"| p_market_and_tam
+  p_closed_loop_value_chain -->|"Ten critical market gaps"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_closed_loop_value_chain -->|"Who owns which slice"| p_competition
+  p_closed_loop_value_chain -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_closed_loop_value_chain -->|"ODaaS product thesis"| p_odaas_core
+  p_closed_loop_value_chain -->|"Continuous design gap"| p_buyers_and_pain
+  p_competition -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_competition -->|"Incumbent AI snapshots"| p_ai_and_data_layer
+  p_competition -->|"People analytics and org design"| p_market_and_tam
+  p_competition -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_competition -->|"Ten critical market gaps"| p_strategic_gaps
+  p_competition -->|"White space map (2×2)"| p_strategic_gaps
+  p_lat -->|"ODaaS product thesis"| p_odaas_core
+  p_lat -->|"Executive snapshot"| p_market_and_tam
+  p_lat -->|"Competitive tiers"| p_competition
+  p_lat -->|"Ten critical market gaps"| p_strategic_gaps
+  p_lat -->|"Intelligence stack"| p_ai_and_data_layer
+  p_lat -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_lat -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_lat --> p_odaas_core
+  p_lat --> p_market_and_tam
+  p_lat --> p_competition
+  p_lat --> p_strategic_gaps
+  p_lat --> p_ai_and_data_layer
+  p_lat --> p_buyers_and_pain
+  p_lat --> p_closed_loop_value_chain
+  p_lat -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_lat -->|"Continuous design gap"| p_buyers_and_pain
+  p_lat -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_lat -->|"ONA and informal organization"| p_strategic_gaps
+  p_market_and_tam -->|"Consulting market structure"| p_competition
+  p_market_and_tam -->|"AI and workflow redesign"| p_ai_and_data_layer
+  p_market_and_tam -->|"Consultant reliance"| p_buyers_and_pain
+  p_market_and_tam -->|"Market entry vectors"| p_strategic_gaps
+  p_market_and_tam -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_market_and_tam -->|"Team Topologies movement"| p_market_and_tam
+  p_market_and_tam -->|"Emerging AI-augmented stack"| p_ai_and_data_layer
+  p_odaas_core -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_odaas_core -->|"Who owns which slice"| p_competition
+  p_odaas_core -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_odaas_core -->|"Ten critical market gaps"| p_strategic_gaps
+  p_odaas_core -->|"Collective gap (what incumbents miss)"| p_competition
+  p_odaas_core -->|"White space map (2×2)"| p_strategic_gaps
+  p_odaas_core -->|"People analytics and org design"| p_market_and_tam
+  p_odaas_core -->|"Workforce planning disconnect"| p_market_and_tam
+  p_odaas_core -->|"Skills-based organization (SBO)"| p_ai_and_data_layer
+  p_odaas_core -->|"Team Topologies movement"| p_market_and_tam
+  p_strategic_gaps -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_strategic_gaps -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_strategic_gaps -->|"Operating model layer"| p_strategic_gaps
+  p_strategic_gaps -->|"Continuous design gap"| p_buyers_and_pain
+  p_strategic_gaps -->|"Human–AI teaming"| p_ai_and_data_layer
+  p_strategic_gaps -->|"Collective gap (what incumbents miss)"| p_competition
+  p_strategic_gaps -->|"ODaaS product thesis"| p_odaas_core
+  p_strategic_gaps -->|"People analytics and org design"| p_market_and_tam
+  p_strategic_gaps -->|"Strategic position"| p_odaas_core
+  p_strategic_gaps -->|"Team Topologies movement"| p_market_and_tam
