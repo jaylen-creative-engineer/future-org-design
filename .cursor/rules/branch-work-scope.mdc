@@ -1,0 +1,31 @@
+---
+description: Create a branch scoped to the class of work before substantive changes
+alwaysApply: true
+---
+
+# Work-scoped branches
+
+Before substantive implementation (anything beyond a one-line typo the user explicitly names), **create a dedicated branch** from the agreed base (usually `main`, or the branch the user specifies).
+
+## Naming
+
+Use: **`<scope>/<short-kebab-description>`** (lowercase, hyphens).
+
+## Scopes (pick one primary scope per branch)
+
+| Scope | Use for |
+|-------|---------|
+| `knowledge-graph/` | `docs/lat.md` wiki, wikilink graph, `docs/knowledge-graph-view/`, parser, tests, `graph:view` / `graph:check` |
+| `platform/` | CI, git hooks, `package.json` scripts, TypeScript/Vitest config, repo automation |
+| `docs/` | Documentation outside the lat graph when it is the main change |
+| `feat/` | Product features (application behavior) when not covered above |
+| `fix/` | Bug fixes |
+| `chore/` | Mechanical maintenance only when no scope above fits |
+
+Keep **one coherent class of work** per branch. Split unrelated changes.
+
+## Examples
+
+- `knowledge-graph/expose-graph-json-api`
+- `platform/pre-push-verify-tuning`
+- `feat/org-model-ingest-endpoint`
