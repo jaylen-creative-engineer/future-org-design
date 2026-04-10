@@ -1,3 +1,4 @@
+export { graphEdgeKey } from "./edge-key.js";
 export type {
   GraphEdge,
   GraphNode,
@@ -23,6 +24,19 @@ export {
   renderMermaidFlowchart,
 } from "./render-view.js";
 export type { DomainRow } from "./render-view.js";
+export type { KnowledgeGraphDiff } from "./graph-diff.js";
+export { diffKnowledgeGraphs } from "./graph-diff.js";
+export type {
+  KnowledgeGraphPublicJson,
+  KnowledgeGraphPublicOutbound,
+  KnowledgeGraphPublicPage,
+} from "./graph-json.js";
+export {
+  KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION,
+  knowledgeGraphFromPublicJson,
+  knowledgeGraphToPublicJson,
+  stringifyKnowledgeGraphPublicJson,
+} from "./graph-json.js";
 export {
   computeDomainProgress,
   computePlanSummary,
