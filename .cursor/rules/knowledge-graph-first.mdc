@@ -17,7 +17,7 @@ For implementation changes in this repo:
    - UI experience wiring
 4. Keep domain logic decoupled from route handlers and UI.
 5. After changes, update relevant `docs/lat.md` pages with architecture, constraints, and cross-links.
-6. After edits to `docs/lat.md/*.md`, `docs/knowledge-graph-view/intelligence-plan.json`, or `src/knowledge-graph/`, run `npm run graph:view` so `docs/knowledge-graph-view/knowledge-graph.html` stays in sync. `npm test` includes a drift check (`graph:check`) against those generated files.
+6. After edits to `docs/lat.md/*.md`, `docs/knowledge-graph-view/intelligence-plan.json`, or `src/knowledge-graph/`, run `npm run graph:view` so `docs/knowledge-graph-view/knowledge-graph.html`, `knowledge-graph.mmd`, and `knowledge-graph.json` stay in sync. `npm test` includes a drift check (`graph:check`) against those generated files.
 7. Pushes run `.githooks/pre-push`, which executes `npm run verify` (install hooks via `npm install` / `npm run git:hooks`).
 
 When proposing or reviewing changes, check for:

@@ -1,0 +1,426 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "pageId": "ai-and-data-layer",
+      "title": "AI and data layer",
+      "relativePath": "ai-and-data-layer.md",
+      "outbound": [
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "HCM context",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Team Topologies movement",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Human–AI teaming",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "ONA and informal organization",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "buyers-and-pain",
+      "title": "Buyers and pain",
+      "relativePath": "buyers-and-pain.md",
+      "outbound": [
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Consultant reliance",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Continuous vs episodic",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Market entry vectors",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "ONA and informal organization",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "closed-loop-value-chain",
+      "title": "Closed-loop value chain",
+      "relativePath": "closed-loop-value-chain.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Organizational network analysis (ONA)",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Who owns which slice",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "People analytics and org design",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Workforce planning disconnect",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Operating model layer",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Ten critical market gaps",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "competition",
+      "title": "Competitive landscape",
+      "relativePath": "competition.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Incumbent AI snapshots",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "People analytics and org design",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Ten critical market gaps",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "White space map (2×2)",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "lat",
+      "title": "future-org-design — Knowledge graph index",
+      "relativePath": "lat.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Intelligence stack",
+          "broken": false
+        },
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Organizational network analysis (ONA)",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Confidence–execution gap",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Competitive tiers",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Executive snapshot",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "ONA and informal organization",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Ten critical market gaps",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "market-and-tam",
+      "title": "Market and TAM",
+      "relativePath": "market-and-tam.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "AI and workflow redesign",
+          "broken": false
+        },
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Emerging AI-augmented stack",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Consultant reliance",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Consulting market structure",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Team Topologies movement",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Market entry vectors",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "odaas-core",
+      "title": "ODaaS core concepts",
+      "relativePath": "odaas-core.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Skills-based organization (SBO)",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Confidence–execution gap",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Collective gap (what incumbents miss)",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Who owns which slice",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "People analytics and org design",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Team Topologies movement",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Workforce planning disconnect",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Ten critical market gaps",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "White space map (2×2)",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "strategic-gaps",
+      "title": "Strategic white space",
+      "relativePath": "strategic-gaps.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Human–AI teaming",
+          "broken": false
+        },
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Organizational network analysis (ONA)",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Collective gap (what incumbents miss)",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "People analytics and org design",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Team Topologies movement",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "Strategic position",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Operating model layer",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        }
+      ]
+    }
+  ]
+}
