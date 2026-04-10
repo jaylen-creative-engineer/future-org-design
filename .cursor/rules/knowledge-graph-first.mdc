@@ -7,6 +7,7 @@ alwaysApply: true
 
 For implementation changes in this repo:
 
+0. Follow **`.cursor/rules/branch-work-scope.mdc`**: fetch and fast-forward **`main`** from **`origin/main`**, then create or rebase a **task-scoped** branch before writing code (unless the change is a one-line typo the user pointed to on an existing file).
 1. Read `docs/lat.md/lat.md` first, then relevant linked graph pages.
 2. Produce a short technical plan with modular, testable segments.
 3. Build in this order:

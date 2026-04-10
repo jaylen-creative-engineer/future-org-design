@@ -1,11 +1,30 @@
 ---
-description: Create a branch scoped to the class of work before substantive changes
+description: Sync main, then create a task-scoped branch before substantive changes
 alwaysApply: true
 ---
 
 # Work-scoped branches
 
-Before substantive implementation (anything beyond a one-line typo the user explicitly names), **create a dedicated branch** from the agreed base (usually `main`, or the branch the user specifies).
+## Sync `main` before you branch
+
+Before substantive implementation (anything beyond a one-line typo the user explicitly names):
+
+1. **Update local `main` from the remote** so the branch base matches what reviewers will merge into:
+   - `git fetch origin main`
+   - `git checkout main` (or `git switch main`)
+   - `git merge --ff-only origin/main`  
+     If fast-forward is not possible, stop and ask how to reconcile local `main` (do not merge unrelated work into the task branch blindly).
+
+2. **Create the task branch from that tip** (see naming below), for example:  
+   `git checkout -b <scope>/<short-kebab-description> main`
+
+If the user explicitly names a different integration branch as the base, use that instead of `main`, but still **fetch and fast-forward that branch from `origin`** before branching.
+
+Do **not** start a new implementation task on a long-lived local branch without first updating `main` (or the agreed base) and either creating a fresh branch from it or rebasing the existing task branch onto the updated base, so pull requests stay small and merge conflicts stay rare.
+
+---
+
+Before substantive implementation, **create a dedicated branch** from the updated base (default **`main`**, unless the user specifies otherwise).
 
 ## Naming
 
