@@ -85,6 +85,34 @@ function formatPercent(ratio: number): string {
   return `${Math.round(ratio * 100)}%`;
 }
 
+function renderAvailableFeaturesList(rows: ReturnType<typeof computeDomainProgress>[]): string {
+  const available = rows.filter((r) => r.builtUnits > 0);
+  if (available.length === 0) {
+    return `
+  <p class="muted">
+    No implemented capability units are recorded yet.
+  </p>`;
+  }
+
+  const items = available
+    .map((r) => {
+      const progressSummary =
+        r.targetUnits > 0
+          ? `${r.builtUnits}/${r.targetUnits} ${r.targetUnits === 1 ? "unit" : "units"} complete (${formatPercent(
+              r.completionRatio,
+            )})`
+          : `${r.builtUnits} implemented units`;
+      const detail = r.notes?.trim() || progressSummary;
+      return `    <li><strong>${escapeHtml(r.title)}:</strong> ${escapeHtml(detail)}</li>`;
+    })
+    .join("\n");
+
+  return `
+  <ul class="feature-list">
+${items}
+  </ul>`;
+}
+
 function renderProgressSection(g: KnowledgeGraph, plan: IntelligencePlan): string {
   const rows = plan.domains.map((d) => computeDomainProgress(g, d));
   const summary = computePlanSummary(rows);
@@ -118,6 +146,8 @@ function renderProgressSection(g: KnowledgeGraph, plan: IntelligencePlan): strin
     <span><strong>${formatPercent(summary.completionRatio)}</strong> complete</span>
     <span><strong>${summary.fullyCompleteDomains}/${summary.domainCount}</strong> domains complete</span>
   </div>
+  <h3>Currently available features</h3>
+${renderAvailableFeaturesList(rows)}
   <table>
     <thead>
       <tr>
@@ -174,6 +204,9 @@ export function renderKnowledgeGraphHtml(g: KnowledgeGraph, plan?: IntelligenceP
     .stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--muted); }
     .stats span strong { color: CanvasText; }
     h2 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+    h3 { font-size: 0.98rem; margin: 1rem 0 0.35rem; }
+    .feature-list { margin: 0 0 1rem 1.25rem; padding: 0; max-width: 60rem; }
+    .feature-list li { margin: 0.3rem 0; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; max-width: 52rem; }
     th, td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); }
     th { font-weight: 600; }
