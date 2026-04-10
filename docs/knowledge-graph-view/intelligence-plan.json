@@ -9,9 +9,9 @@
       "productPromise": "Continuously map ODaaS intelligence domains and dependencies.",
       "graphPageIds": ["lat", "closed-loop-value-chain"],
       "targetUnits": 8,
-      "builtUnits": 6,
-      "status": "in_progress",
-      "notes": "Parser, graph build, tests, and viewer are complete. Diffing and API exposure are pending."
+      "builtUnits": 8,
+      "status": "completed",
+      "notes": "Parser, graph build, tests, viewer, public JSON export (knowledge-graph.json), and graph diff (diffKnowledgeGraphs) are complete."
     },
     {
       "id": "org-model-intelligence",

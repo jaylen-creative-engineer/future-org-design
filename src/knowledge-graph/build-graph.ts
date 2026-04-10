@@ -1,3 +1,4 @@
+import { graphEdgeKey } from "./edge-key.js";
 import type { GraphEdge, GraphNode, GraphStats, KnowledgeGraph } from "./types.js";
 import { titleFromFirstHeading } from "./markdown-title.js";
 import { parseWikiLinks } from "./parse-wikilinks.js";
@@ -8,10 +9,6 @@ export type PageDocument = {
   relativePath: string;
   markdown: string;
 };
-
-function edgeKey(e: Pick<GraphEdge, "fromPageId" | "toPageId" | "headingAnchor">): string {
-  return `${e.fromPageId}\0${e.toPageId}\0${e.headingAnchor ?? ""}`;
-}
 
 /**
  * Build a knowledge graph from parsed pages. Wikilinks resolve to `{pageId}.md` in the same corpus.
@@ -34,7 +31,7 @@ export function buildKnowledgeGraph(rootDir: string, pages: readonly PageDocumen
         headingAnchor: link.headingAnchor,
         broken,
       };
-      const k = edgeKey(edge);
+      const k = graphEdgeKey(edge);
       if (seen.has(k)) continue;
       seen.add(k);
       list.push(edge);
