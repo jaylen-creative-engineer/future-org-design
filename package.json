@@ -6,6 +6,9 @@
   "scripts": {
     "prepare": "node scripts/git-set-hooks.mjs",
     "git:hooks": "node scripts/git-set-hooks.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lat:check": "lat --dir docs check",
     "graph:view": "tsx src/knowledge-graph/write-graph-view.cli.ts",
     "graph:check": "tsx src/knowledge-graph/check-graph-view.cli.ts",
@@ -16,9 +19,16 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "lat.md": "^0.11.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "next": "^16.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   }
 }
