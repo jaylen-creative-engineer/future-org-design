@@ -2,7 +2,7 @@
 
 ODaaS product intelligence as a wiki graph: thesis, market, competition, gaps, AI layer, and buyers. Use this instead of re-grepping the full research doc.
 
-Full citations live in `.devnotes/ODaaS_Research_Compilation.md`.
+Full citations live in `docs/.devnotes/ODaaS_Research_Compilation.md`.
 
 ## Graph map
 

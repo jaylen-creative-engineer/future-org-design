@@ -1,0 +1,26 @@
+---
+description: Require knowledge graph review and update for implementation tasks
+alwaysApply: true
+---
+
+# Knowledge Graph First Workflow
+
+For implementation changes in this repo:
+
+1. Read `docs/lat.md/lat.md` first, then relevant linked graph pages.
+2. Produce a short technical plan with modular, testable segments.
+3. Build in this order:
+   - service and domain logic
+   - database/repository integration
+   - functional and integration tests
+   - API routes
+   - UI experience wiring
+4. Keep domain logic decoupled from route handlers and UI.
+5. After changes, update relevant `docs/lat.md` pages with architecture, constraints, and cross-links.
+
+When proposing or reviewing changes, check for:
+
+- closed-loop value chain alignment
+- prescriptive design intent
+- continuous redesign support
+- explicit test coverage for each changed capability
