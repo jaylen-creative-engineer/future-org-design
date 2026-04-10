@@ -1,0 +1,25 @@
+---
+description: Delegate conflict-free parallel work to subagents by default
+alwaysApply: true
+---
+
+# Parallel Agent Delegation
+
+When a task can be split into independent work without merge conflicts, spawn parallel subagents instead of executing everything serially.
+
+Use this checklist before splitting:
+
+1. Confirm each lane has clear boundaries (separate files or modules).
+2. Avoid shared bottleneck files in parallel lanes (`package.json`, barrel exports, generated outputs, lockfiles, shared configs).
+3. Keep one integration lane for shared-file wiring after isolated lanes finish.
+
+Default behavior:
+
+- Spawn at least one subagent for each safe lane.
+- Run independent discovery tasks in parallel when they improve delivery speed.
+- If conflict risk is medium/high, do not parallelize that part; keep it in the primary agent lane.
+
+Before finalizing:
+
+- Summarize which lanes were parallelized and why they were safe.
+- Call out any deferred serialized integration work explicitly.
