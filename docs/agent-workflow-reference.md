@@ -8,9 +8,18 @@ Maintain alignment between code, roadmap, and the `docs/lat.md` knowledge graph 
 
 ## Mandatory workflow
 
+### 0) Git baseline (main + task branch)
+
+Before writing code for a substantive task:
+
+- Fetch and fast-forward local **`main`** from **`origin/main`** (see **`.cursor/rules/branch-work-scope.mdc`** for exact commands).
+- Create or update a **task-scoped** branch from that tip (`<scope>/<short-kebab-description>`). Do not pile unrelated work onto a stale branch without rebasing onto current `main` first.
+
+If the user names a different base branch, treat that branch the same way: fetch and fast-forward from `origin` before branching.
+
 ### 1) Pre-change knowledge graph review
 
-Before writing code:
+Before writing code (after step 0):
 
 - Read `docs/lat.md/lat.md` (graph index).
 - Read relevant domain pages linked from the index.
@@ -74,6 +83,7 @@ Use this prompt when starting a new task with an AI coding agent:
 You are implementing a change in future-org-design.
 
 Follow this process strictly:
+0) Sync local main from origin/main and work on a task-scoped branch (see .cursor/rules/branch-work-scope.mdc).
 1) Read docs/lat.md/lat.md and relevant linked knowledge graph pages before coding.
 2) Produce a short technical plan with modular, testable segments.
 3) Implement service/database changes first with functional validation tests.
