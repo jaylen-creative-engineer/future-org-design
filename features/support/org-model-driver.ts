@@ -19,8 +19,11 @@ export interface ScopeView {
 export interface ScenarioView {
   scenarioId: string;
   baselineId: string;
+  state: ScenarioState;
   units: Map<string, { id: string; name: string; parentId?: string }>;
 }
+
+export type ScenarioState = "draft" | "ready" | "archived";
 
 export class OrgModelError extends Error {
   constructor(public readonly code: string, message: string) {
@@ -128,6 +131,7 @@ export class InMemoryOrgModelDriver {
     this.scenarios.set(scenarioId, {
       scenarioId,
       baselineId,
+      state: "draft",
       units: cloneUnits(baseline.units)
     });
   }
@@ -138,6 +142,48 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
     }
     scenario.units.set(unitId, { id: unitId, name });
+  }
+
+  moveScenarioSubtree(scenarioId: string, unitId: string, nextParentId: string): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    if (scenario.state !== "draft") {
+      throw new OrgModelError("SCENARIO_NOT_DRAFT", "Only draft scenarios can be edited");
+    }
+
+    const unit = scenario.units.get(unitId);
+    const nextParent = scenario.units.get(nextParentId);
+    if (!unit || !nextParent) {
+      throw new OrgModelError("UNIT_NOT_FOUND", "Scenario unit or parent unit does not exist");
+    }
+
+    let cursor: string | undefined = nextParentId;
+    while (cursor) {
+      if (cursor === unitId) {
+        throw new OrgModelError("CYCLE_DETECTED", "Scenario move would introduce a cycle");
+      }
+      cursor = scenario.units.get(cursor)?.parentId;
+    }
+
+    scenario.units.set(unitId, { ...unit, parentId: nextParentId });
+  }
+
+  markScenarioReady(scenarioId: string): void {
+    this.transitionScenarioState(scenarioId, "ready");
+  }
+
+  archiveScenario(scenarioId: string): void {
+    this.transitionScenarioState(scenarioId, "archived");
+  }
+
+  getScenarioState(scenarioId: string): ScenarioState {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    return scenario.state;
   }
 
   scenarioHasUnit(scenarioId: string, unitId: string): boolean {
@@ -154,6 +200,22 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
     }
     return baseline.units.has(unitId);
+  }
+
+  scenarioParentOf(scenarioId: string, unitId: string): string | undefined {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    return scenario.units.get(unitId)?.parentId;
+  }
+
+  baselineParentOf(baselineId: string, unitId: string): string | undefined {
+    const baseline = this.baselines.get(baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
+    }
+    return baseline.units.get(unitId)?.parentId;
   }
 
   ingest(payload: IngestPayload): { scopeId: string; unitCount: number } {
@@ -207,5 +269,27 @@ export class InMemoryOrgModelDriver {
 
   getNormalizedInternalId(scopeId: string, externalId: string): string | undefined {
     return this.getScope(scopeId).normalizedExternalToInternal.get(externalId);
+  }
+
+  private transitionScenarioState(scenarioId: string, targetState: ScenarioState): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+
+    const allowedTransitions: Record<ScenarioState, readonly ScenarioState[]> = {
+      draft: ["ready"],
+      ready: ["archived"],
+      archived: []
+    };
+
+    if (!allowedTransitions[scenario.state].includes(targetState)) {
+      throw new OrgModelError(
+        "INVALID_SCENARIO_STATE_TRANSITION",
+        `Cannot transition scenario ${scenarioId} from ${scenario.state} to ${targetState}`
+      );
+    }
+
+    scenario.state = targetState;
   }
 }
