@@ -12,12 +12,16 @@
     "lat:check": "lat --dir docs check",
     "graph:view": "tsx src/knowledge-graph/write-graph-view.cli.ts",
     "graph:check": "tsx src/knowledge-graph/check-graph-view.cli.ts",
-    "verify": "npm run typecheck && npm run lat:check && npm test",
+    "integration:check": "npm run typecheck && npm run lat:check && npm test && npm run bdd",
+    "verify": "npm run integration:check",
     "typecheck": "tsc --noEmit",
     "test": "vitest run && npm run graph:check",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "bdd": "NODE_OPTIONS='--import tsx' cucumber-js --config cucumber.mjs",
+    "bdd:org-model": "npm run bdd -- --tags '@org-model-intelligence'"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^12.7.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -30,5 +34,8 @@
     "next": "^16.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.60.1"
   }
 }

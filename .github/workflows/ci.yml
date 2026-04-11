@@ -14,5 +14,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - run: npm ci || npm i
+      # Explicit @rollup/rollup-linux-x64-gnu optionalDependency avoids npm optional-dep
+      # install gaps on Linux CI when the lockfile was generated on another OS.
+      - run: npm ci
       - run: npm run verify

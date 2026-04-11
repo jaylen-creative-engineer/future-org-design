@@ -1,0 +1,25 @@
+---
+description: Require Gherkin specs and passing BDD for integration completion
+alwaysApply: true
+---
+
+# Gherkin Integration Gate
+
+All agent-delivered functionality must be backed by executable Gherkin.
+
+## Requirements
+
+- Define or update at least one `features/**/*.feature` scenario for each behavior change.
+- Tag scenarios for traceability from capability/feature IDs to scenario IDs.
+- Keep step definitions executable (no pending/undefined steps).
+
+## Completion signal
+
+Do not mark an integration as completed unless this command passes:
+
+`npm run integration:check`
+
+## Validation expectations
+
+- Failing or missing Gherkin scenarios means the change is not complete.
+- If a change is internal/refactor-only, preserve or update existing scenarios to prove behavior parity.
