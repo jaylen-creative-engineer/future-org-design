@@ -25,3 +25,14 @@ Separate vendors per stage raise integration cost and block prescriptions — [[
 ## ODaaS alignment
 
 [[odaas-core#ODaaS product thesis]] — rotate the loop continuously vs [[buyers-and-pain#Continuous design gap]].
+
+## Implementation status snapshot (2026-04-11)
+
+This snapshot records the first shipped scenario-intelligence behaviors that operationalize the design/planning loop with executable requirements.
+
+- Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
+- Implemented behavior:
+  - scenario copies are created from immutable baselines
+  - scenario state transitions follow `draft -> ready -> archived`
+  - subtree reparenting is allowed in scenarios and blocked from mutating baseline structure
+- This closes a first part of the **Design** and **Planning** loop stages while preserving isolation from baseline state for repeatable comparison workflows.

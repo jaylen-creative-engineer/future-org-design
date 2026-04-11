@@ -92,3 +92,17 @@ Feature: Org model intelligence requirements
         """
       When ingest runs
       Then ingest succeeds with unit count 2
+
+  Rule: SCN scenario lifecycle and structural edit behavior
+
+    @SCN-01 @SCN-02 @S-SCN-01
+    Scenario: Move scenario subtree without mutating baseline
+      Given scope "acme" has baseline "baseline-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-a" is created from baseline "baseline-v1"
+      Then scenario "scenario-a" state is "draft"
+      When subtree rooted at "platform" is moved under "ops" in scenario "scenario-a"
+      And scenario "scenario-a" is marked ready
+      And scenario "scenario-a" is archived
+      Then scenario "scenario-a" state is "archived"
+      And scenario "scenario-a" unit "platform" reports to "ops"
+      And baseline "baseline-v1" unit "platform" reports to "engineering"

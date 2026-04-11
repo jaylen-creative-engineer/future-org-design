@@ -86,6 +86,34 @@ Given(
   }
 );
 
+Given(
+  "scope {string} has baseline {string} with units {string}, {string}, and {string} and reporting line from {string} to {string}",
+  function (
+    this: OrgModelWorld,
+    scopeId: string,
+    baselineId: string,
+    firstUnit: string,
+    secondUnit: string,
+    thirdUnit: string,
+    childId: string,
+    parentId: string
+  ) {
+    this.driver.createScope(scopeId);
+    this.driver.addUnit(scopeId, firstUnit);
+    this.driver.addUnit(scopeId, secondUnit);
+    this.driver.addUnit(scopeId, thirdUnit);
+    this.driver.addReportingLine(scopeId, childId, parentId);
+    this.driver.commitBaseline(scopeId, baselineId);
+  }
+);
+
+When(
+  "scenario {string} is created from baseline {string}",
+  function (this: OrgModelWorld, scenarioId: string, baselineId: string) {
+    this.driver.createScenarioFromBaseline(baselineId, scenarioId);
+  }
+);
+
 When(
   "scenario {string} is created from baseline {string} and unit {string} is added to that scenario",
   function (this: OrgModelWorld, scenarioId: string, baselineId: string, scenarioOnlyUnitId: string) {
@@ -93,6 +121,25 @@ When(
     this.driver.addUnitToScenario(scenarioId, scenarioOnlyUnitId);
   }
 );
+
+When(
+  "subtree rooted at {string} is moved under {string} in scenario {string}",
+  function (this: OrgModelWorld, unitId: string, nextParentId: string, scenarioId: string) {
+    this.driver.moveScenarioSubtree(scenarioId, unitId, nextParentId);
+  }
+);
+
+When("scenario {string} is marked ready", function (this: OrgModelWorld, scenarioId: string) {
+  this.driver.markScenarioReady(scenarioId);
+});
+
+When("scenario {string} is archived", function (this: OrgModelWorld, scenarioId: string) {
+  this.driver.archiveScenario(scenarioId);
+});
+
+Then("scenario {string} state is {string}", function (this: OrgModelWorld, scenarioId: string, expectedState: string) {
+  assert.equal(this.driver.getScenarioState(scenarioId), expectedState);
+});
 
 Then(
   "scenario {string} includes unit {string}",
@@ -105,6 +152,20 @@ Then(
   "baseline {string} does not include unit {string}",
   function (this: OrgModelWorld, baselineId: string, unitId: string) {
     assert.equal(this.driver.baselineHasUnit(baselineId, unitId), false);
+  }
+);
+
+Then(
+  "scenario {string} unit {string} reports to {string}",
+  function (this: OrgModelWorld, scenarioId: string, unitId: string, expectedParentId: string) {
+    assert.equal(this.driver.scenarioParentOf(scenarioId, unitId), expectedParentId);
+  }
+);
+
+Then(
+  "baseline {string} unit {string} reports to {string}",
+  function (this: OrgModelWorld, baselineId: string, unitId: string, expectedParentId: string) {
+    assert.equal(this.driver.baselineParentOf(baselineId, unitId), expectedParentId);
   }
 );
 
