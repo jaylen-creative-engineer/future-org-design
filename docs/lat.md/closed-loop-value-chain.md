@@ -28,6 +28,8 @@ Separate vendors per stage raise integration cost and block prescriptions — [[
 
 ## Implementation status snapshot (2026-04-11)
 
+This snapshot records the first shipped scenario-intelligence behaviors that operationalize the design/planning loop with executable requirements.
+
 - Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
 - Implemented behavior:
   - scenario copies are created from immutable baselines
