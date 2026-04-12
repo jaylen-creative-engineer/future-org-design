@@ -26,6 +26,24 @@ export interface ScenarioView {
 
 export type ScenarioState = "draft" | "ready" | "archived";
 
+export interface ScenarioScore {
+  scenarioId: string;
+  baselineId: string;
+  addedUnitCount: number;
+  removedUnitCount: number;
+  reparentedUnitCount: number;
+  structuralChangeScore: number;
+  maxDepthDelta: number;
+  affectedUnitIds: string[];
+}
+
+export interface ScenarioSummary {
+  scenarioId: string;
+  baselineId: string;
+  state: ScenarioState;
+  structuralChangeScore: number;
+}
+
 export interface RecommendationConstraint {
   type: string;
   targetEntityId: string;
@@ -341,6 +359,93 @@ export class InMemoryOrgModelDriver {
     return baseline.units.get(unitId)?.parentId;
   }
 
+  scoreScenario(scenarioId: string): ScenarioScore {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+
+    const scenarioUnitIds = new Set(scenario.units.keys());
+    const baselineUnitIds = new Set(baseline.units.keys());
+    const addedUnitIds = [...scenarioUnitIds].filter((unitId) => !baselineUnitIds.has(unitId));
+    const removedUnitIds = [...baselineUnitIds].filter((unitId) => !scenarioUnitIds.has(unitId));
+    const affectedUnitIds: string[] = [...addedUnitIds, ...removedUnitIds];
+    let reparentedUnitCount = 0;
+    let maxDepthDelta = 0;
+
+    for (const unitId of scenario.units.keys()) {
+      const baselineParentId = baseline.units.get(unitId)?.parentId;
+      const scenarioParentId = scenario.units.get(unitId)?.parentId;
+      if (baselineUnitIds.has(unitId) && baselineParentId !== scenarioParentId) {
+        affectedUnitIds.push(unitId);
+        reparentedUnitCount += 1;
+      }
+      const baselineDepth = this.depthFromUnits(baseline.units, unitId);
+      const scenarioDepth = this.depthFromUnits(scenario.units, unitId);
+      maxDepthDelta = Math.max(maxDepthDelta, Math.abs(scenarioDepth - baselineDepth));
+    }
+
+    affectedUnitIds.sort();
+    const addedUnitCount = addedUnitIds.length;
+    const removedUnitCount = removedUnitIds.length;
+    const structuralChangeScore = addedUnitCount + removedUnitCount + reparentedUnitCount;
+    return {
+      scenarioId,
+      baselineId: scenario.baselineId,
+      addedUnitCount,
+      removedUnitCount,
+      reparentedUnitCount,
+      structuralChangeScore,
+      maxDepthDelta,
+      affectedUnitIds
+    };
+  }
+
+  listScenariosForScope(scopeId: string): ScenarioSummary[] {
+    this.getScope(scopeId);
+    const summaries: ScenarioSummary[] = [];
+    for (const scenario of this.scenarios.values()) {
+      if (scenario.scopeId !== scopeId) {
+        continue;
+      }
+      const score = this.scoreScenario(scenario.scenarioId);
+      summaries.push({
+        scenarioId: scenario.scenarioId,
+        baselineId: scenario.baselineId,
+        state: scenario.state,
+        structuralChangeScore: score.structuralChangeScore
+      });
+    }
+
+    return summaries.sort((a, b) => a.scenarioId.localeCompare(b.scenarioId));
+  }
+
+  listScenariosForBaseline(baselineId: string): ScenarioSummary[] {
+    if (!this.baselines.has(baselineId)) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
+    }
+
+    const summaries: ScenarioSummary[] = [];
+    for (const scenario of this.scenarios.values()) {
+      if (scenario.baselineId !== baselineId) {
+        continue;
+      }
+      const score = this.scoreScenario(scenario.scenarioId);
+      summaries.push({
+        scenarioId: scenario.scenarioId,
+        baselineId: scenario.baselineId,
+        state: scenario.state,
+        structuralChangeScore: score.structuralChangeScore
+      });
+    }
+
+    return summaries.sort((a, b) => a.scenarioId.localeCompare(b.scenarioId));
+  }
+
   useRecommendationFixture(fixtureId: string): void {
     this.recommendationAdapter = new DeterministicAdkRecommendationAdapter(fixtureId);
   }
@@ -504,6 +609,19 @@ export class InMemoryOrgModelDriver {
         cursor = scope.units.get(cursor)?.parentId;
       }
     }
+  }
+
+  private depthFromUnits(
+    units: Map<string, { id: string; name: string; parentId?: string }>,
+    unitId: string
+  ): number {
+    let depth = 0;
+    let cursor = units.get(unitId)?.parentId;
+    while (cursor) {
+      depth += 1;
+      cursor = units.get(cursor)?.parentId;
+    }
+    return depth;
   }
 
   private transitionScenarioState(scenarioId: string, targetState: ScenarioState): void {

@@ -26,17 +26,19 @@ Separate vendors per stage raise integration cost and block prescriptions — [[
 
 [[odaas-core#ODaaS product thesis]] — rotate the loop continuously vs [[buyers-and-pain#Continuous design gap]].
 
-## Implementation status snapshot (2026-04-11)
+## Implementation status snapshot (2026-04-12)
 
 This snapshot records shipped scenario-intelligence and recommendation-intelligence behaviors that operationalize the design/planning loop with executable requirements.
 
 - Org model intelligence (structure + ingest) is at full planned unit coverage in `features/org-model-intelligence.feature` (`@ORG-01` through `@ORG-06`, `@DATA-01` through `@DATA-05`, including ingest-time cycle detection and unknown-parent rejection).
-- Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
+- Scenario modeling now has executable baseline fork + structural edit, scenario scoring, and scenario catalog slices in `features/org-model-intelligence.feature` (`@SCN-01` through `@SCN-04`, `@S-SCN-01` to `@S-SCN-03`).
 - Recommendation intelligence now has executable artifact generation + review workflow coverage in `features/org-model-intelligence.feature` (`@REC-01` to `@REC-05`, `@S-REC-01` to `@S-REC-04`).
 - Implemented behavior:
   - scenario copies are created from immutable baselines
   - scenario state transitions follow `draft -> ready -> archived`
   - subtree reparenting is allowed in scenarios and blocked from mutating baseline structure
+  - scenario scoring compares draft scenarios against baseline depth, moved-unit count, and root-unit count deltas
+  - scenario catalog listing returns scoped scenario summaries with baseline linkage and state
   - recommendation artifacts are generated through a deterministic ADK adapter boundary with structured suggested changes, rationale, and confidence
   - recommendation review transitions enforce `proposed -> accepted/rejected/superseded` with reviewer metadata
 - This closes a larger part of the **Design**, **Planning**, and early **Implementation** loop stages while preserving baseline isolation for repeatable comparison and decision workflows.

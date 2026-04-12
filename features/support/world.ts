@@ -3,6 +3,7 @@ import type { IWorldOptions } from "@cucumber/cucumber";
 import { InMemoryOrgModelDriver, OrgModelError } from "./org-model-driver.js";
 import type { IngestPayload } from "./org-model-driver.js";
 import type { RecommendationArtifact, RecommendationRequest } from "./org-model-driver.js";
+import type { ScenarioScore, ScenarioSummary } from "./org-model-driver.js";
 
 export class OrgModelWorld extends World {
   readonly driver = new InMemoryOrgModelDriver();
@@ -12,6 +13,8 @@ export class OrgModelWorld extends World {
   lastRecommendationRequest?: RecommendationRequest;
   lastRecommendationArtifact?: RecommendationArtifact;
   previousRecommendationArtifact?: RecommendationArtifact;
+  lastScenarioScore?: ScenarioScore;
+  lastScenarioCatalog?: ScenarioSummary[];
 
   constructor(options: IWorldOptions) {
     super(options);
