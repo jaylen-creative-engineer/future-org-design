@@ -18,6 +18,9 @@ Navigate the graph by topic. Each row points to a section with more detail.
 | AI & data                    | [[ai-and-data-layer#Intelligence stack]]         |
 | Buyers & pain                | [[buyers-and-pain#Confidence–execution gap]]     |
 | Closed-loop pipeline         | [[closed-loop-value-chain#Closed-loop pipeline]] |
+| Environmental intelligence   | [[environmental-intelligence#Executive snapshot]] |
+| Financial intelligence       | [[financial-intelligence#Executive snapshot]]     |
+| Governance & sentiment       | [[governance-and-sentiment-intelligence#Executive snapshot]] |
 
 
 ## Documents in this graph
@@ -31,6 +34,9 @@ One wiki page per theme; follow links to move across the graph without reading e
 - [[ai-and-data-layer]] — AI snapshots, ONA, frameworks, SBO, human–AI teaming.
 - [[buyers-and-pain]] — Confidence gap, pain themes, personas, triggers, continuous design.
 - [[closed-loop-value-chain]] — End-to-end analytics → design → plan → implement → monitor loop.
+- [[environmental-intelligence]] — Energy/carbon awareness and sustainability trade-offs for redesign workflows.
+- [[financial-intelligence]] — Scenario economics, value realization, and growth leverage decision support.
+- [[governance-and-sentiment-intelligence]] — Governance portal, policy Q&A, support workflows, and NPS/eNPS consolidation.
 
 ## Programmatic graph (code)
 

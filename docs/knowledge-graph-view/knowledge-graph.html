@@ -37,8 +37,8 @@
     Higher <em>inbound</em> counts indicate hubs many other pages point at; <em>outbound</em> is how many distinct targets that page references.
   </p>
   <div class="stats" role="status">
-    <span><strong>8</strong> pages</span>
-    <span><strong>73</strong> edges</span>
+    <span><strong>11</strong> pages</span>
+    <span><strong>102</strong> edges</span>
     <span><strong>0</strong> broken</span>
   </div>
 
@@ -48,14 +48,17 @@
       <tr><th>Title</th><th>Page id</th><th>Outbound</th><th>Inbound</th></tr>
     </thead>
     <tbody>
-          <tr><td>AI and data layer</td><td><code>ai-and-data-layer</code></td><td class="num">7</td><td class="num">10</td></tr>
-          <tr><td>Buyers and pain</td><td><code>buyers-and-pain</code></td><td class="num">6</td><td class="num">9</td></tr>
-          <tr><td>Closed-loop value chain</td><td><code>closed-loop-value-chain</code></td><td class="num">9</td><td class="num">5</td></tr>
-          <tr><td>Competitive landscape</td><td><code>competition</code></td><td class="num">6</td><td class="num">7</td></tr>
-          <tr><td>future-org-design — Knowledge graph index</td><td><code>lat</code></td><td class="num">18</td><td class="num">0</td></tr>
-          <tr><td>Market and TAM</td><td><code>market-and-tam</code></td><td class="num">7</td><td class="num">13</td></tr>
-          <tr><td>ODaaS core concepts</td><td><code>odaas-core</code></td><td class="num">10</td><td class="num">7</td></tr>
-          <tr><td>Strategic white space</td><td><code>strategic-gaps</code></td><td class="num">10</td><td class="num">22</td></tr>
+          <tr><td>AI and data layer</td><td><code>ai-and-data-layer</code></td><td class="num">7</td><td class="num">13</td></tr>
+          <tr><td>Buyers and pain</td><td><code>buyers-and-pain</code></td><td class="num">6</td><td class="num">14</td></tr>
+          <tr><td>Closed-loop value chain</td><td><code>closed-loop-value-chain</code></td><td class="num">9</td><td class="num">11</td></tr>
+          <tr><td>Competitive landscape</td><td><code>competition</code></td><td class="num">6</td><td class="num">8</td></tr>
+          <tr><td>Environmental intelligence</td><td><code>environmental-intelligence</code></td><td class="num">7</td><td class="num">2</td></tr>
+          <tr><td>Financial intelligence</td><td><code>financial-intelligence</code></td><td class="num">10</td><td class="num">2</td></tr>
+          <tr><td>Governance and sentiment intelligence</td><td><code>governance-and-sentiment-intelligence</code></td><td class="num">6</td><td class="num">2</td></tr>
+          <tr><td>future-org-design — Knowledge graph index</td><td><code>lat</code></td><td class="num">24</td><td class="num">0</td></tr>
+          <tr><td>Market and TAM</td><td><code>market-and-tam</code></td><td class="num">7</td><td class="num">14</td></tr>
+          <tr><td>ODaaS core concepts</td><td><code>odaas-core</code></td><td class="num">10</td><td class="num">9</td></tr>
+          <tr><td>Strategic white space</td><td><code>strategic-gaps</code></td><td class="num">10</td><td class="num">27</td></tr>
     </tbody>
   </table>
 
@@ -63,14 +66,14 @@
   <h2>Product promise vs build progress</h2>
   <p class="lead">
     This maps product promise domains to logic-graph pages and tracks code-complete intelligence units.
-    Unit: <code>intelligence capabilities</code>. Last update: <code>2026-04-11</code>.
+    Unit: <code>intelligence capabilities</code>. Last update: <code>2026-04-12</code>.
   </p>
   <div class="stats" role="status">
-    <span><strong>74</strong> target units</span>
+    <span><strong>102</strong> target units</span>
     <span><strong>30</strong> built units</span>
-    <span><strong>44</strong> remaining units</span>
-    <span><strong>41%</strong> complete</span>
-    <span><strong>2/7</strong> domains complete</span>
+    <span><strong>72</strong> remaining units</span>
+    <span><strong>29%</strong> complete</span>
+    <span><strong>2/10</strong> domains complete</span>
   </div>
   <h3>Currently available features</h3>
 
@@ -165,6 +168,36 @@
             <td class="num">9</td>
             <td class="num">10%</td>
           </tr>
+          <tr>
+            <td>Environmental intelligence</td>
+            <td>Make project energy and environmental impact visible across baseline, scenario, and recommendation workflows.</td>
+            <td><code>environmental-intelligence</code>, <code>closed-loop-value-chain</code>, <code>ai-and-data-layer</code></td>
+            <td class="num">3/3</td>
+            <td class="num">8</td>
+            <td class="num">0</td>
+            <td class="num">8</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Financial intelligence</td>
+            <td>Quantify scenario economics and growth leverage to support defensible org design decisions.</td>
+            <td><code>financial-intelligence</code>, <code>market-and-tam</code>, <code>closed-loop-value-chain</code></td>
+            <td class="num">3/3</td>
+            <td class="num">10</td>
+            <td class="num">0</td>
+            <td class="num">10</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td>Governance and sentiment intelligence</td>
+            <td>Provide a governance portal for support/policy workflows and consolidate NPS/eNPS context for actionable sentiment monitoring.</td>
+            <td><code>governance-and-sentiment-intelligence</code>, <code>strategic-gaps</code>, <code>buyers-and-pain</code></td>
+            <td class="num">3/3</td>
+            <td class="num">10</td>
+            <td class="num">0</td>
+            <td class="num">10</td>
+            <td class="num">0%</td>
+          </tr>
     </tbody>
   </table>
 
@@ -175,6 +208,9 @@
   p_buyers_and_pain["Buyers and pain — buyers-and-pain.md"]
   p_closed_loop_value_chain["Closed-loop value chain — closed-loop-value-chain.md"]
   p_competition["Competitive landscape — competition.md"]
+  p_environmental_intelligence["Environmental intelligence — environmental-intelligence.md"]
+  p_financial_intelligence["Financial intelligence — financial-intelligence.md"]
+  p_governance_and_sentiment_intelligence["Governance and sentiment intelligence — governance-and-sentiment-intelligence.md"]
   p_lat["future-org-design — Knowledge graph index — lat.md"]
   p_market_and_tam["Market and TAM — market-and-tam.md"]
   p_odaas_core["ODaaS core concepts — odaas-core.md"]
@@ -207,6 +243,29 @@
   p_competition -->|"Prescriptive analytics gap"| p_strategic_gaps
   p_competition -->|"Ten critical market gaps"| p_strategic_gaps
   p_competition -->|"White space map (2×2)"| p_strategic_gaps
+  p_environmental_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_environmental_intelligence -->|"Intelligence stack"| p_ai_and_data_layer
+  p_environmental_intelligence -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_environmental_intelligence -->|"Operating model layer"| p_strategic_gaps
+  p_environmental_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_environmental_intelligence -->|"Why it matters"| p_closed_loop_value_chain
+  p_environmental_intelligence -->|"ODaaS product thesis"| p_odaas_core
+  p_financial_intelligence -->|"Consultant reliance"| p_buyers_and_pain
+  p_financial_intelligence -->|"Workforce planning disconnect"| p_market_and_tam
+  p_financial_intelligence -->|"ODaaS product thesis"| p_odaas_core
+  p_financial_intelligence -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_financial_intelligence -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_financial_intelligence -->|"ONA and informal organization"| p_strategic_gaps
+  p_financial_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_financial_intelligence -->|"Who owns which slice"| p_competition
+  p_financial_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_financial_intelligence -->|"Why it matters"| p_closed_loop_value_chain
+  p_governance_and_sentiment_intelligence -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_governance_and_sentiment_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_governance_and_sentiment_intelligence -->|"Operating model layer"| p_strategic_gaps
+  p_governance_and_sentiment_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_governance_and_sentiment_intelligence -->|"Intelligence stack"| p_ai_and_data_layer
+  p_governance_and_sentiment_intelligence -->|"Why it matters"| p_closed_loop_value_chain
   p_lat -->|"ODaaS product thesis"| p_odaas_core
   p_lat -->|"Executive snapshot"| p_market_and_tam
   p_lat -->|"Competitive tiers"| p_competition
@@ -214,6 +273,9 @@
   p_lat -->|"Intelligence stack"| p_ai_and_data_layer
   p_lat -->|"Confidence–execution gap"| p_buyers_and_pain
   p_lat -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_lat -->|"Executive snapshot"| p_environmental_intelligence
+  p_lat -->|"Executive snapshot"| p_financial_intelligence
+  p_lat -->|"Executive snapshot"| p_governance_and_sentiment_intelligence
   p_lat --> p_odaas_core
   p_lat --> p_market_and_tam
   p_lat --> p_competition
@@ -221,6 +283,9 @@
   p_lat --> p_ai_and_data_layer
   p_lat --> p_buyers_and_pain
   p_lat --> p_closed_loop_value_chain
+  p_lat --> p_environmental_intelligence
+  p_lat --> p_financial_intelligence
+  p_lat --> p_governance_and_sentiment_intelligence
   p_lat -->|"Prescriptive analytics gap"| p_strategic_gaps
   p_lat -->|"Continuous design gap"| p_buyers_and_pain
   p_lat -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
@@ -254,7 +319,7 @@
   p_strategic_gaps -->|"Team Topologies movement"| p_market_and_tam</pre>
   </div>
 
-  <footer>Generated 2026-04-11 · Regenerate: <code>npm run graph:view</code></footer>
+  <footer>Generated 2026-04-12 · Regenerate: <code>npm run graph:view</code></footer>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script>
     mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
