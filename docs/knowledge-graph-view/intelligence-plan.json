@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "updatedAt": "2026-04-10",
+  "updatedAt": "2026-04-11",
   "unit": "intelligence capabilities",
   "domains": [
     {
@@ -10,8 +10,8 @@
       "graphPageIds": ["lat", "closed-loop-value-chain"],
       "targetUnits": 8,
       "builtUnits": 8,
-      "status": "completed",
-      "notes": "Parser, graph build, tests, viewer, public JSON export (knowledge-graph.json), and graph diff (diffKnowledgeGraphs) are complete."
+      "status": "complete",
+      "notes": "Parser, graph build, tests, viewer, public JSON export (knowledge-graph.json v2 embeds intelligence plan), and graph diff (diffKnowledgeGraphs) are complete."
     },
     {
       "id": "org-model-intelligence",
@@ -19,8 +19,9 @@
       "productPromise": "Ingest and normalize organization structures and constraints.",
       "graphPageIds": ["odaas-core", "market-and-tam", "buyers-and-pain"],
       "targetUnits": 12,
-      "builtUnits": 0,
-      "status": "planned"
+      "builtUnits": 8,
+      "status": "in_progress",
+      "notes": "Executable coverage for ORG (root/unit creation, reporting depth, cycle detection, baseline vs scenario isolation) and DATA (normalize ingest, duplicate external keys, invalid schema, idempotent re-ingest) in features/org-model-intelligence.feature, backed by the in-memory driver in features/support/org-model-driver.ts. Next.js UI for these flows is not wired yet (app scaffold only)."
     },
     {
       "id": "scenario-intelligence",
@@ -28,8 +29,9 @@
       "productPromise": "Generate and score what-if organizational scenarios.",
       "graphPageIds": ["strategic-gaps", "closed-loop-value-chain"],
       "targetUnits": 12,
-      "builtUnits": 0,
-      "status": "planned"
+      "builtUnits": 3,
+      "status": "in_progress",
+      "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Scoring and broader what-if catalog remain planned."
     },
     {
       "id": "recommendation-intelligence",
@@ -37,8 +39,9 @@
       "productPromise": "Produce prescriptive design recommendations from analysis + scenarios.",
       "graphPageIds": ["strategic-gaps", "ai-and-data-layer", "competition"],
       "targetUnits": 14,
-      "builtUnits": 0,
-      "status": "planned"
+      "builtUnits": 6,
+      "status": "in_progress",
+      "notes": "Structured artifact generation, deterministic golden fixture, accept/reject review with reviewer metadata (@REC-01 to @REC-05, @S-REC-01 to @S-REC-04). Production ADK integration and richer constraint libraries remain planned."
     },
     {
       "id": "monitoring-intelligence",
@@ -47,7 +50,8 @@
       "graphPageIds": ["closed-loop-value-chain", "buyers-and-pain", "ai-and-data-layer"],
       "targetUnits": 10,
       "builtUnits": 0,
-      "status": "planned"
+      "status": "planned",
+      "notes": "No executable monitoring slice yet."
     },
     {
       "id": "api-contract-intelligence",
@@ -56,7 +60,8 @@
       "graphPageIds": ["odaas-core", "closed-loop-value-chain"],
       "targetUnits": 8,
       "builtUnits": 0,
-      "status": "planned"
+      "status": "planned",
+      "notes": "Domain logic is exercised via Cucumber and in-memory drivers; HTTP/OpenAPI surfaces are not implemented yet."
     },
     {
       "id": "experience-intelligence",
@@ -64,8 +69,9 @@
       "productPromise": "Deliver end-user workflows from baseline through monitored decisions.",
       "graphPageIds": ["buyers-and-pain", "closed-loop-value-chain", "market-and-tam"],
       "targetUnits": 10,
-      "builtUnits": 0,
-      "status": "planned"
+      "builtUnits": 1,
+      "status": "in_progress",
+      "notes": "Next.js 16 app shell (app/layout.tsx, app/page.tsx) is present; org/scenario/recommendation workflows are not exposed in the UI yet."
     }
   ]
 }

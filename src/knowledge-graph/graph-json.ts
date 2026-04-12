@@ -1,14 +1,25 @@
 import { buildKnowledgeGraph } from "./build-graph.js";
 import type { PageDocument } from "./build-graph.js";
+import type { IntelligencePlan } from "./intelligence-progress.js";
 import type { GraphEdge, KnowledgeGraph } from "./types.js";
 
-export const KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION = 1 as const;
+/** Current on-disk format for `docs/knowledge-graph-view/knowledge-graph.json`. */
+export const KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION = 2 as const;
 
-/** Serializable snapshot of the wiki graph (no absolute filesystem paths). */
-export type KnowledgeGraphPublicJson = {
-  version: typeof KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION;
+/** Legacy snapshot: wiki pages only (no intelligence plan). */
+export type KnowledgeGraphPublicJsonV1 = {
+  version: 1;
   pages: readonly KnowledgeGraphPublicPage[];
 };
+
+/** Wiki graph plus the same intelligence plan snapshot used by the HTML viewer. */
+export type KnowledgeGraphPublicJsonV2 = {
+  version: typeof KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION;
+  pages: readonly KnowledgeGraphPublicPage[];
+  intelligencePlan: IntelligencePlan;
+};
+
+export type KnowledgeGraphPublicJson = KnowledgeGraphPublicJsonV1 | KnowledgeGraphPublicJsonV2;
 
 export type KnowledgeGraphPublicPage = {
   pageId: string;
@@ -43,11 +54,7 @@ function outboundFromNode(outbound: readonly GraphEdge[]): KnowledgeGraphPublicO
   );
 }
 
-/**
- * Deterministic JSON-friendly view of a {@link KnowledgeGraph} for tools and drift checks.
- * Pages and outbound links are sorted; `rootDir` is not included.
- */
-export function knowledgeGraphToPublicJson(g: KnowledgeGraph): KnowledgeGraphPublicJson {
+function pagesToPublicList(g: KnowledgeGraph): KnowledgeGraphPublicPage[] {
   const pages: KnowledgeGraphPublicPage[] = [];
   for (const id of [...g.pageIds].sort((a, b) => a.localeCompare(b))) {
     const n = g.nodes.get(id);
@@ -59,7 +66,20 @@ export function knowledgeGraphToPublicJson(g: KnowledgeGraph): KnowledgeGraphPub
       outbound: outboundFromNode(n.outbound),
     });
   }
-  return { version: KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION, pages };
+  return pages;
+}
+
+/**
+ * Deterministic JSON-friendly view of a {@link KnowledgeGraph} for tools and drift checks.
+ * Pages and outbound links are sorted; `rootDir` is not included. Includes `intelligencePlan`
+ * (same source as `docs/knowledge-graph-view/intelligence-plan.json`) so consumers see build state.
+ */
+export function knowledgeGraphToPublicJson(g: KnowledgeGraph, plan: IntelligencePlan): KnowledgeGraphPublicJsonV2 {
+  return {
+    version: KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION,
+    pages: pagesToPublicList(g),
+    intelligencePlan: plan,
+  };
 }
 
 function markdownFromPublicPage(p: KnowledgeGraphPublicPage): string {
@@ -75,10 +95,11 @@ function markdownFromPublicPage(p: KnowledgeGraphPublicPage): string {
 /**
  * Rebuild an in-memory graph from a public JSON snapshot (for tests and round-trips).
  * Wikilinks are synthesized from `outbound`; `broken` is recomputed from the page id set.
+ * Version 2 `intelligencePlan` is ignored for graph reconstruction.
  */
 export function knowledgeGraphFromPublicJson(j: KnowledgeGraphPublicJson, rootDir: string): KnowledgeGraph {
-  if (j.version !== KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION) {
-    throw new Error(`Unsupported knowledge graph JSON version: ${String(j.version)}`);
+  if (j.version !== 1 && j.version !== KNOWLEDGE_GRAPH_PUBLIC_JSON_VERSION) {
+    throw new Error(`Unsupported knowledge graph JSON version: ${String((j as { version: unknown }).version)}`);
   }
   const pages: PageDocument[] = j.pages.map((p) => ({
     pageId: p.pageId,

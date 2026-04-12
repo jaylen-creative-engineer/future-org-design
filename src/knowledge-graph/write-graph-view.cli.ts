@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   ]);
   await fs.writeFile(htmlPath, renderKnowledgeGraphHtml(g, plan), "utf8");
   await fs.writeFile(mmdPath, `${renderMermaidFlowchart(g)}\n`, "utf8");
-  await fs.writeFile(jsonPath, stringifyKnowledgeGraphPublicJson(knowledgeGraphToPublicJson(g)), "utf8");
+  await fs.writeFile(jsonPath, stringifyKnowledgeGraphPublicJson(knowledgeGraphToPublicJson(g, plan)), "utf8");
   console.log(`Wrote ${htmlPath}`);
   console.log(`Wrote ${mmdPath}`);
   console.log(`Wrote ${jsonPath}`);

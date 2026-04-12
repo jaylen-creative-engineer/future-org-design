@@ -28,6 +28,8 @@ export type { KnowledgeGraphDiff } from "./graph-diff.js";
 export { diffKnowledgeGraphs } from "./graph-diff.js";
 export type {
   KnowledgeGraphPublicJson,
+  KnowledgeGraphPublicJsonV1,
+  KnowledgeGraphPublicJsonV2,
   KnowledgeGraphPublicOutbound,
   KnowledgeGraphPublicPage,
 } from "./graph-json.js";
