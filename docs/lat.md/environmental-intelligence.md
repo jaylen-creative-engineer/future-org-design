@@ -4,7 +4,9 @@ Energy and environmental awareness for ODaaS: quantify project energy cost, esti
 
 ## Executive snapshot
 
-AI-enabled org design introduces a new constraint: redesign quality must improve while compute and energy intensity stay governed. Environmental intelligence gives operators decision-grade energy/carbon context inside the same loop as org design and workforce planning — [[closed-loop-value-chain#Closed-loop pipeline]], [[ai-and-data-layer#Intelligence stack]].
+AI-enabled org design should improve outcomes without hidden energy externalities.
+
+Environmental intelligence gives operators decision-grade energy/carbon context inside the same loop as org design and workforce planning — [[closed-loop-value-chain#Closed-loop pipeline]], [[ai-and-data-layer#Intelligence stack]].
 
 ## Intelligence capability map
 
@@ -42,6 +44,8 @@ Environmental intelligence should follow the canonical ODaaS loop:
 This keeps environmental posture inside accountable delivery rather than separate ESG reporting — [[closed-loop-value-chain#Why it matters]], [[odaas-core#ODaaS product thesis]].
 
 ## MVP slices
+
+These slices stage delivery from transparency to policy-aware action.
 
 - **ENV-01 Transparency** — show per-run estimate and rolling monthly aggregate.
 - **ENV-02 Baseline drift** — flag meaningful increases vs baseline by workspace.

@@ -31,6 +31,8 @@ The objective is decision support for the full pipeline, not standalone reportin
 
 ## Data inputs
 
+Financial decision quality depends on reliable structural and workforce source data.
+
 - Organizational structure and role-level metadata.
 - Compensation bands and workforce mix assumptions.
 - Hiring/attrition and vacancy dynamics.
@@ -38,6 +40,8 @@ The objective is decision support for the full pipeline, not standalone reportin
 - Financial governance rules for approvals and thresholds.
 
 ## MVP slices
+
+These slices prioritize auditable economics before deeper FP&A integration.
 
 - **FIN-01 Scenario delta summary** — structured economics export for each scenario.
 - **FIN-02 Span/layer cost lens** — show cost and coordination implications.

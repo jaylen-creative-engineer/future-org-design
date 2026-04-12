@@ -4,7 +4,9 @@ Governance and sentiment intelligence for ODaaS: provide a portal for employee s
 
 ## Executive snapshot
 
-Organizations need a governed path from question to answer to measurable impact. Policy guidance on AI usage, speakers, and related conduct often lives in fragmented channels, and sentiment signals are tracked separately from redesign decisions. This creates execution drag and weak feedback loops — [[buyers-and-pain#Confidence–execution gap]], [[buyers-and-pain#Continuous design gap]].
+Organizations need a governed path from question to answer to measurable impact.
+
+Policy guidance on AI usage, speakers, and related conduct often lives in fragmented channels, and sentiment signals are tracked separately from redesign decisions. This creates execution drag and weak feedback loops — [[buyers-and-pain#Confidence–execution gap]], [[buyers-and-pain#Continuous design gap]].
 
 ODaaS can treat governance and sentiment as a monitored intelligence domain connected to decision rights and redesign outcomes — [[strategic-gaps#Operating model layer]], [[closed-loop-value-chain#Closed-loop pipeline]].
 
@@ -32,6 +34,8 @@ Sentiment intelligence combines governance activity with workforce confidence si
 The goal is to make sentiment interpretable in context, not a detached scorecard — [[ai-and-data-layer#Intelligence stack]], [[closed-loop-value-chain#Why it matters]].
 
 ## MVP slices
+
+These slices establish a practical governance portal and sentiment readout.
 
 - **GOV-01 Portal shell** — centralized intake with status tracking.
 - **GOV-02 Policy Q&A** — searchable answers plus escalation path for ambiguous cases.
