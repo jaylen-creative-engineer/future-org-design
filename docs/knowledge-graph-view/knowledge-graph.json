@@ -170,6 +170,142 @@
       ]
     },
     {
+      "pageId": "environmental-intelligence",
+      "title": "Environmental intelligence",
+      "relativePath": "environmental-intelligence.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Intelligence stack",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Why it matters",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Operating model layer",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "financial-intelligence",
+      "title": "Financial intelligence",
+      "relativePath": "financial-intelligence.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Organizational network analysis (ONA)",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Consultant reliance",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Why it matters",
+          "broken": false
+        },
+        {
+          "toPageId": "competition",
+          "headingAnchor": "Who owns which slice",
+          "broken": false
+        },
+        {
+          "toPageId": "market-and-tam",
+          "headingAnchor": "Workforce planning disconnect",
+          "broken": false
+        },
+        {
+          "toPageId": "odaas-core",
+          "headingAnchor": "ODaaS product thesis",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "ONA and informal organization",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Prescriptive analytics gap",
+          "broken": false
+        }
+      ]
+    },
+    {
+      "pageId": "governance-and-sentiment-intelligence",
+      "title": "Governance and sentiment intelligence",
+      "relativePath": "governance-and-sentiment-intelligence.md",
+      "outbound": [
+        {
+          "toPageId": "ai-and-data-layer",
+          "headingAnchor": "Intelligence stack",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Confidence–execution gap",
+          "broken": false
+        },
+        {
+          "toPageId": "buyers-and-pain",
+          "headingAnchor": "Continuous design gap",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Closed-loop pipeline",
+          "broken": false
+        },
+        {
+          "toPageId": "closed-loop-value-chain",
+          "headingAnchor": "Why it matters",
+          "broken": false
+        },
+        {
+          "toPageId": "strategic-gaps",
+          "headingAnchor": "Operating model layer",
+          "broken": false
+        }
+      ]
+    },
+    {
       "pageId": "lat",
       "title": "future-org-design — Knowledge graph index",
       "relativePath": "lat.md",
@@ -222,6 +358,36 @@
         {
           "toPageId": "competition",
           "headingAnchor": "Competitive tiers",
+          "broken": false
+        },
+        {
+          "toPageId": "environmental-intelligence",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "environmental-intelligence",
+          "headingAnchor": "Executive snapshot",
+          "broken": false
+        },
+        {
+          "toPageId": "financial-intelligence",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "financial-intelligence",
+          "headingAnchor": "Executive snapshot",
+          "broken": false
+        },
+        {
+          "toPageId": "governance-and-sentiment-intelligence",
+          "headingAnchor": null,
+          "broken": false
+        },
+        {
+          "toPageId": "governance-and-sentiment-intelligence",
+          "headingAnchor": "Executive snapshot",
           "broken": false
         },
         {
@@ -425,7 +591,7 @@
   ],
   "intelligencePlan": {
     "version": "0.1.0",
-    "updatedAt": "2026-04-11",
+    "updatedAt": "2026-04-12",
     "unit": "intelligence capabilities",
     "domains": [
       {
@@ -522,6 +688,48 @@
         "builtUnits": 1,
         "status": "in_progress",
         "notes": "Next.js 16 app shell (app/layout.tsx, app/page.tsx) is present; org/scenario/recommendation workflows are not exposed in the UI yet."
+      },
+      {
+        "id": "environmental-intelligence",
+        "title": "Environmental intelligence",
+        "productPromise": "Make project energy and environmental impact visible across baseline, scenario, and recommendation workflows.",
+        "graphPageIds": [
+          "environmental-intelligence",
+          "closed-loop-value-chain",
+          "ai-and-data-layer"
+        ],
+        "targetUnits": 8,
+        "builtUnits": 0,
+        "status": "planned",
+        "notes": "LAT scope is defined for energy/carbon transparency, baseline drift, policy-aware controls, and monitoring integration; executable service slices are not implemented yet."
+      },
+      {
+        "id": "financial-intelligence",
+        "title": "Financial intelligence",
+        "productPromise": "Quantify scenario economics and growth leverage to support defensible org design decisions.",
+        "graphPageIds": [
+          "financial-intelligence",
+          "market-and-tam",
+          "closed-loop-value-chain"
+        ],
+        "targetUnits": 10,
+        "builtUnits": 0,
+        "status": "planned",
+        "notes": "LAT scope is defined for baseline vs scenario economics, sensitivity bands, implementation burden, and portfolio comparisons; executable scenario finance slices are not implemented yet."
+      },
+      {
+        "id": "governance-and-sentiment-intelligence",
+        "title": "Governance and sentiment intelligence",
+        "productPromise": "Provide a governance portal for support/policy workflows and consolidate NPS/eNPS context for actionable sentiment monitoring.",
+        "graphPageIds": [
+          "governance-and-sentiment-intelligence",
+          "strategic-gaps",
+          "buyers-and-pain"
+        ],
+        "targetUnits": 10,
+        "builtUnits": 0,
+        "status": "planned",
+        "notes": "LAT scope is defined for request intake/routing, policy Q&A, and sentiment consolidation with governance context; executable domain/API/UI slices are not implemented yet."
       }
     ]
   }

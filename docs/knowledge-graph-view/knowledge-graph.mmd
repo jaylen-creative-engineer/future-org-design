@@ -3,6 +3,9 @@ flowchart TB
   p_buyers_and_pain["Buyers and pain — buyers-and-pain.md"]
   p_closed_loop_value_chain["Closed-loop value chain — closed-loop-value-chain.md"]
   p_competition["Competitive landscape — competition.md"]
+  p_environmental_intelligence["Environmental intelligence — environmental-intelligence.md"]
+  p_financial_intelligence["Financial intelligence — financial-intelligence.md"]
+  p_governance_and_sentiment_intelligence["Governance and sentiment intelligence — governance-and-sentiment-intelligence.md"]
   p_lat["future-org-design — Knowledge graph index — lat.md"]
   p_market_and_tam["Market and TAM — market-and-tam.md"]
   p_odaas_core["ODaaS core concepts — odaas-core.md"]
@@ -35,6 +38,29 @@ flowchart TB
   p_competition -->|"Prescriptive analytics gap"| p_strategic_gaps
   p_competition -->|"Ten critical market gaps"| p_strategic_gaps
   p_competition -->|"White space map (2×2)"| p_strategic_gaps
+  p_environmental_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_environmental_intelligence -->|"Intelligence stack"| p_ai_and_data_layer
+  p_environmental_intelligence -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_environmental_intelligence -->|"Operating model layer"| p_strategic_gaps
+  p_environmental_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_environmental_intelligence -->|"Why it matters"| p_closed_loop_value_chain
+  p_environmental_intelligence -->|"ODaaS product thesis"| p_odaas_core
+  p_financial_intelligence -->|"Consultant reliance"| p_buyers_and_pain
+  p_financial_intelligence -->|"Workforce planning disconnect"| p_market_and_tam
+  p_financial_intelligence -->|"ODaaS product thesis"| p_odaas_core
+  p_financial_intelligence -->|"Prescriptive analytics gap"| p_strategic_gaps
+  p_financial_intelligence -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
+  p_financial_intelligence -->|"ONA and informal organization"| p_strategic_gaps
+  p_financial_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_financial_intelligence -->|"Who owns which slice"| p_competition
+  p_financial_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_financial_intelligence -->|"Why it matters"| p_closed_loop_value_chain
+  p_governance_and_sentiment_intelligence -->|"Confidence–execution gap"| p_buyers_and_pain
+  p_governance_and_sentiment_intelligence -->|"Continuous design gap"| p_buyers_and_pain
+  p_governance_and_sentiment_intelligence -->|"Operating model layer"| p_strategic_gaps
+  p_governance_and_sentiment_intelligence -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_governance_and_sentiment_intelligence -->|"Intelligence stack"| p_ai_and_data_layer
+  p_governance_and_sentiment_intelligence -->|"Why it matters"| p_closed_loop_value_chain
   p_lat -->|"ODaaS product thesis"| p_odaas_core
   p_lat -->|"Executive snapshot"| p_market_and_tam
   p_lat -->|"Competitive tiers"| p_competition
@@ -42,6 +68,9 @@ flowchart TB
   p_lat -->|"Intelligence stack"| p_ai_and_data_layer
   p_lat -->|"Confidence–execution gap"| p_buyers_and_pain
   p_lat -->|"Closed-loop pipeline"| p_closed_loop_value_chain
+  p_lat -->|"Executive snapshot"| p_environmental_intelligence
+  p_lat -->|"Executive snapshot"| p_financial_intelligence
+  p_lat -->|"Executive snapshot"| p_governance_and_sentiment_intelligence
   p_lat --> p_odaas_core
   p_lat --> p_market_and_tam
   p_lat --> p_competition
@@ -49,6 +78,9 @@ flowchart TB
   p_lat --> p_ai_and_data_layer
   p_lat --> p_buyers_and_pain
   p_lat --> p_closed_loop_value_chain
+  p_lat --> p_environmental_intelligence
+  p_lat --> p_financial_intelligence
+  p_lat --> p_governance_and_sentiment_intelligence
   p_lat -->|"Prescriptive analytics gap"| p_strategic_gaps
   p_lat -->|"Continuous design gap"| p_buyers_and_pain
   p_lat -->|"Organizational network analysis (ONA)"| p_ai_and_data_layer
