@@ -37,6 +37,11 @@ Then(
   }
 );
 
+Given("scope {string} has unit {string} only", function (this: OrgModelWorld, scopeId: string, unitId: string) {
+  this.driver.createScope(scopeId);
+  this.driver.addUnit(scopeId, unitId);
+});
+
 Given("scope {string} has units {string} and {string}", function (this: OrgModelWorld, scopeId: string, first: string, second: string) {
   this.driver.createScope(scopeId);
   this.driver.addUnit(scopeId, first);
@@ -188,6 +193,14 @@ Given("an ingest payload with duplicate external keys:", function (this: OrgMode
 });
 
 Given("an ingest payload with invalid schema:", function (this: OrgModelWorld, docString: string) {
+  this.lastIngestPayload = parsePayload(docString);
+});
+
+Given("an ingest payload with unknown parent reference:", function (this: OrgModelWorld, docString: string) {
+  this.lastIngestPayload = parsePayload(docString);
+});
+
+Given("an ingest payload that introduces a reporting cycle:", function (this: OrgModelWorld, docString: string) {
   this.lastIngestPayload = parsePayload(docString);
 });
 

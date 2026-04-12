@@ -93,6 +93,48 @@ Feature: Org model intelligence requirements
       When ingest runs
       Then ingest succeeds with unit count 2
 
+    @ORG-04 @S-ORG-04
+    Scenario: Reject reporting line when child unit is missing
+      Given scope "acme" has unit "engineering" only
+      When a reporting line from "missing-child" to "engineering" is attempted in scope "acme"
+      Then the operation fails with error code "UNIT_NOT_FOUND"
+
+    @ORG-06 @S-ORG-06
+    Scenario: Reject reporting line when parent unit is missing
+      Given scope "acme" has units "engineering" and "platform"
+      When a reporting line from "engineering" to "missing-parent" is attempted in scope "acme"
+      Then the operation fails with error code "UNIT_NOT_FOUND"
+
+    @DATA-04 @S-DATA-05
+    Scenario: Reject ingest when parent external id is unknown
+      Given an ingest payload with unknown parent reference:
+        """
+        {
+          "scopeId": "acme",
+          "units": [
+            { "externalId": "u-eng", "name": "Engineering" },
+            { "externalId": "u-plat", "name": "Platform", "parentExternalId": "u-ghost" }
+          ]
+        }
+        """
+      When ingest runs
+      Then the operation fails with error code "INVALID_SCHEMA"
+
+    @DATA-05 @S-DATA-06
+    Scenario: Reject ingest that introduces a reporting cycle
+      Given an ingest payload that introduces a reporting cycle:
+        """
+        {
+          "scopeId": "acme",
+          "units": [
+            { "externalId": "u-a", "name": "Team A", "parentExternalId": "u-b" },
+            { "externalId": "u-b", "name": "Team B", "parentExternalId": "u-a" }
+          ]
+        }
+        """
+      When ingest runs
+      Then the operation fails with error code "CYCLE_DETECTED"
+
   Rule: SCN scenario lifecycle and structural edit behavior
 
     @SCN-01 @SCN-02 @S-SCN-01

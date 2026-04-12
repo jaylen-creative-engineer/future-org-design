@@ -451,9 +451,9 @@
           "buyers-and-pain"
         ],
         "targetUnits": 12,
-        "builtUnits": 8,
-        "status": "in_progress",
-        "notes": "Executable coverage for ORG (root/unit creation, reporting depth, cycle detection, baseline vs scenario isolation) and DATA (normalize ingest, duplicate external keys, invalid schema, idempotent re-ingest) in features/org-model-intelligence.feature, backed by the in-memory driver in features/support/org-model-driver.ts. Next.js UI for these flows is not wired yet (app scaffold only)."
+        "builtUnits": 12,
+        "status": "complete",
+        "notes": "Twelve executable slices in features/org-model-intelligence.feature (ORG-01 through ORG-06, DATA-01 through DATA-05) covering structure, reporting validation, baseline isolation, ingest normalization, schema and duplicate-key rejection, idempotent re-ingest, unknown parent references, and ingest-time cycle detection; implemented in features/support/org-model-driver.ts. Next.js UI for these flows is not wired yet (app scaffold only)."
       },
       {
         "id": "scenario-intelligence",
