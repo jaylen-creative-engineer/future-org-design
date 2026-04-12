@@ -1,0 +1,24 @@
+---
+description: End-of-task next-work recommendation from intelligence plan and public graph JSON
+alwaysApply: true
+---
+
+# Next work from intelligence signals
+
+When a task is **substantively complete**, the user asks **what to do next**, or you are **handing off** work, give a **short prioritized recommendation** for the next body of work.
+
+## Required inputs (read both)
+
+1. **`docs/knowledge-graph-view/intelligence-plan.json`** — editable plan: `domains[]` with `id`, `builtUnits` / `targetUnits`, `status`, `notes`, and `graphPageIds` (which `docs/lat.md` pages anchor the promise).
+2. **`docs/knowledge-graph-view/knowledge-graph.json`** — public snapshot: wiki `pages` (wikilinks) and, when `version` is **2**, embedded **`intelligencePlan`** (same shape as the standalone plan file).
+
+If the JSON `version` is **1**, or embedded `intelligencePlan` disagrees with `intelligence-plan.json` after edits, tell the user to run **`npm run graph:view`** and re-read the files.
+
+## How to recommend
+
+- Prefer domains with the **largest remaining gap** (`targetUnits - builtUnits`) among `planned` or `in_progress`, using **`notes`** for concrete gaps (for example scoring, API surfaces, UI wiring).
+- Tie-break toward **closed-loop value**: scenario depth → recommendation hardening → **api-contract-intelligence** (stable contracts) → **experience-intelligence** (Next.js workflows) → **monitoring-intelligence**, unless `notes` show a clearer blocker.
+- Cite **`graphPageIds`** and name the matching **`docs/lat.md/*.md`** pages the implementer should skim next.
+- Keep the answer **actionable** (one primary recommendation, at most one alternate), not a full roadmap essay.
+
+This does not replace **`docs/task-plan.md`** or GitHub issues; it **grounds** next-step advice in repo-maintained intelligence artifacts.
