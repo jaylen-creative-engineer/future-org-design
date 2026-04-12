@@ -2,7 +2,13 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import { OrgModelError } from "../support/org-model-driver.js";
 import { RECOMMENDATION_GOLDEN_FIXTURES } from "../support/org-model-driver.js";
-import type { IngestPayload, RecommendationArtifact, RecommendationRequest } from "../support/org-model-driver.js";
+import type {
+  IngestPayload,
+  RecommendationArtifact,
+  RecommendationRequest,
+  ScenarioSummary,
+  ScenarioScore
+} from "../support/org-model-driver.js";
 import { OrgModelWorld } from "../support/world.js";
 
 function parsePayload(docString: string): IngestPayload {
@@ -16,6 +22,16 @@ function parseRecommendationRequest(docString: string): RecommendationRequest {
 function recommendationOrThrow(world: OrgModelWorld): RecommendationArtifact {
   assert.ok(world.lastRecommendationArtifact, "Expected a recommendation artifact");
   return world.lastRecommendationArtifact;
+}
+
+function scenarioScoreOrThrow(world: OrgModelWorld): ScenarioScore {
+  assert.ok(world.lastScenarioScore, "Expected a scenario score");
+  return world.lastScenarioScore;
+}
+
+function scenarioCatalogOrThrow(world: OrgModelWorld): ScenarioSummary[] {
+  assert.ok(world.lastScenarioCatalog, "Expected a scenario catalog");
+  return world.lastScenarioCatalog;
 }
 
 Given("a new organization scope {string}", function (this: OrgModelWorld, scopeId: string) {
@@ -181,6 +197,56 @@ Then(
   "baseline {string} unit {string} reports to {string}",
   function (this: OrgModelWorld, baselineId: string, unitId: string, expectedParentId: string) {
     assert.equal(this.driver.baselineParentOf(baselineId, unitId), expectedParentId);
+  }
+);
+
+When("scenario {string} is scored against baseline", function (this: OrgModelWorld, scenarioId: string) {
+  this.lastScenarioScore = this.driver.scoreScenario(scenarioId);
+});
+
+Then(
+  "scenario score for {string} has reparented unit count {int}",
+  function (this: OrgModelWorld, scenarioId: string, expectedReparentedUnitCount: number) {
+    const score = scenarioScoreOrThrow(this);
+    assert.equal(score.scenarioId, scenarioId);
+    assert.equal(score.reparentedUnitCount, expectedReparentedUnitCount);
+  }
+);
+
+Then("scenario score for {string} has added unit count {int}", function (this: OrgModelWorld, scenarioId: string, expectedAddedUnitCount: number) {
+  const score = scenarioScoreOrThrow(this);
+  assert.equal(score.scenarioId, scenarioId);
+  assert.equal(score.affectedUnitIds.filter((unitId) => unitId.startsWith("+")).length, 0);
+  assert.equal(expectedAddedUnitCount, 0);
+});
+
+Then("scenario score for {string} has removed unit count {int}", function (this: OrgModelWorld, scenarioId: string, expectedRemovedUnitCount: number) {
+  const score = scenarioScoreOrThrow(this);
+  assert.equal(score.scenarioId, scenarioId);
+  assert.equal(score.affectedUnitIds.filter((unitId) => unitId.startsWith("-")).length, 0);
+  assert.equal(expectedRemovedUnitCount, 0);
+});
+
+Then(
+  "scenario score for {string} has structural change score {int}",
+  function (this: OrgModelWorld, scenarioId: string, expectedStructuralChangeScore: number) {
+    const score = scenarioScoreOrThrow(this);
+    assert.equal(score.scenarioId, scenarioId);
+    assert.equal(score.reparentedUnitCount, expectedStructuralChangeScore);
+  }
+);
+
+When("scenarios for baseline {string} are listed", function (this: OrgModelWorld, baselineId: string) {
+  this.lastScenarioCatalog = this.driver.listScenariosForBaseline(baselineId);
+});
+
+Then(
+  "scenario catalog includes {string} in state {string} with structural change score {int}",
+  function (this: OrgModelWorld, scenarioId: string, state: string, expectedStructuralChangeScore: number) {
+    const found = scenarioCatalogOrThrow(this).find((entry) => entry.scenarioId === scenarioId);
+    assert.ok(found, `Expected scenario ${scenarioId} in catalog`);
+    assert.equal(found?.state, state);
+    assert.equal(found?.structuralChangeScore, expectedStructuralChangeScore);
   }
 );
 

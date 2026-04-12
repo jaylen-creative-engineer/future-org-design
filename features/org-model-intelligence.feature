@@ -149,6 +149,28 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+    @SCN-03 @S-SCN-02
+    Scenario: Score scenario structural changes against baseline
+      Given scope "acme" has baseline "baseline-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-score-a" is created from baseline "baseline-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-score-a"
+      And scenario "scenario-score-a" is scored against baseline
+      Then scenario score for "scenario-score-a" has reparented unit count 1
+      And scenario score for "scenario-score-a" has added unit count 0
+      And scenario score for "scenario-score-a" has removed unit count 0
+      And scenario score for "scenario-score-a" has structural change score 1
+
+    @SCN-04 @S-SCN-03
+    Scenario: List scenario catalog with score summaries for a baseline
+      Given scope "acme" has baseline "baseline-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-catalog-a" is created from baseline "baseline-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-catalog-a"
+      And scenario "scenario-catalog-a" is marked ready
+      And scenario "scenario-catalog-b" is created from baseline "baseline-v1"
+      And scenarios for baseline "baseline-v1" are listed
+      Then scenario catalog includes "scenario-catalog-a" in state "ready" with structural change score 1
+      And scenario catalog includes "scenario-catalog-b" in state "draft" with structural change score 0
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01

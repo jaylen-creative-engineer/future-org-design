@@ -29,9 +29,9 @@
       "productPromise": "Generate and score what-if organizational scenarios.",
       "graphPageIds": ["strategic-gaps", "closed-loop-value-chain"],
       "targetUnits": 12,
-      "builtUnits": 3,
+      "builtUnits": 5,
       "status": "in_progress",
-      "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Scoring and broader what-if catalog remain planned."
+      "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline, scenario scoring via baseline-vs-scenario depth/root-change metrics, and scope-local scenario catalog listing with state+unit counts (@SCN-01, @SCN-02, @SCN-03, @SCN-04, @S-SCN-01). Broader what-if catalog and richer scoring remain planned."
     },
     {
       "id": "recommendation-intelligence",
