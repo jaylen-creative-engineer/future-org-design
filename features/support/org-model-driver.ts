@@ -479,6 +479,8 @@ export class InMemoryOrgModelDriver {
       scope.units.set(childInternalId, { ...child, parentId: parentInternalId });
     }
 
+    this.assertReportingGraphAcyclic(scope);
+
     return {
       scopeId: payload.scopeId,
       unitCount: scope.units.size
@@ -487,6 +489,21 @@ export class InMemoryOrgModelDriver {
 
   getNormalizedInternalId(scopeId: string, externalId: string): string | undefined {
     return this.getScope(scopeId).normalizedExternalToInternal.get(externalId);
+  }
+
+  /** Ensures parent links form a DAG (no reporting cycles). */
+  private assertReportingGraphAcyclic(scope: ScopeView): void {
+    for (const startId of scope.units.keys()) {
+      const seenOnPath = new Set<string>();
+      let cursor: string | undefined = startId;
+      while (cursor) {
+        if (seenOnPath.has(cursor)) {
+          throw new OrgModelError("CYCLE_DETECTED", "Ingest introduces a reporting cycle");
+        }
+        seenOnPath.add(cursor);
+        cursor = scope.units.get(cursor)?.parentId;
+      }
+    }
   }
 
   private transitionScenarioState(scenarioId: string, targetState: ScenarioState): void {

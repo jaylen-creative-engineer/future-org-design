@@ -40,7 +40,7 @@ async function main(): Promise<void> {
 
   const actualHtml = normalizeNewlines(renderKnowledgeGraphHtml(g, plan));
   const actualMmd = normalizeNewlines(`${renderMermaidFlowchart(g)}\n`);
-  const actualJson = normalizeNewlines(stringifyKnowledgeGraphPublicJson(knowledgeGraphToPublicJson(g)));
+  const actualJson = normalizeNewlines(stringifyKnowledgeGraphPublicJson(knowledgeGraphToPublicJson(g, plan)));
 
   const problems: string[] = [];
   if (actualHtml !== expectedHtml) problems.push(`${path.relative(process.cwd(), htmlPath)} is out of date`);
