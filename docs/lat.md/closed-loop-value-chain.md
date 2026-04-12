@@ -28,11 +28,14 @@ Separate vendors per stage raise integration cost and block prescriptions — [[
 
 ## Implementation status snapshot (2026-04-11)
 
-This snapshot records the first shipped scenario-intelligence behaviors that operationalize the design/planning loop with executable requirements.
+This snapshot records shipped scenario-intelligence and recommendation-intelligence behaviors that operationalize the design/planning loop with executable requirements.
 
 - Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
+- Recommendation intelligence now has executable artifact generation + review workflow coverage in `features/org-model-intelligence.feature` (`@REC-01` to `@REC-05`, `@S-REC-01` to `@S-REC-04`).
 - Implemented behavior:
   - scenario copies are created from immutable baselines
   - scenario state transitions follow `draft -> ready -> archived`
   - subtree reparenting is allowed in scenarios and blocked from mutating baseline structure
-- This closes a first part of the **Design** and **Planning** loop stages while preserving isolation from baseline state for repeatable comparison workflows.
+  - recommendation artifacts are generated through a deterministic ADK adapter boundary with structured suggested changes, rationale, and confidence
+  - recommendation review transitions enforce `proposed -> accepted/rejected/superseded` with reviewer metadata
+- This closes a larger part of the **Design**, **Planning**, and early **Implementation** loop stages while preserving baseline isolation for repeatable comparison and decision workflows.

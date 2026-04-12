@@ -1,11 +1,21 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import { OrgModelError } from "../support/org-model-driver.js";
-import type { IngestPayload } from "../support/org-model-driver.js";
+import { RECOMMENDATION_GOLDEN_FIXTURES } from "../support/org-model-driver.js";
+import type { IngestPayload, RecommendationArtifact, RecommendationRequest } from "../support/org-model-driver.js";
 import { OrgModelWorld } from "../support/world.js";
 
 function parsePayload(docString: string): IngestPayload {
   return JSON.parse(docString) as IngestPayload;
+}
+
+function parseRecommendationRequest(docString: string): RecommendationRequest {
+  return JSON.parse(docString) as RecommendationRequest;
+}
+
+function recommendationOrThrow(world: OrgModelWorld): RecommendationArtifact {
+  assert.ok(world.lastRecommendationArtifact, "Expected a recommendation artifact");
+  return world.lastRecommendationArtifact;
 }
 
 Given("a new organization scope {string}", function (this: OrgModelWorld, scopeId: string) {
@@ -211,3 +221,114 @@ Given("the same ingest payload is run twice:", function (this: OrgModelWorld, do
   this.lastIngestPayload = parsePayload(docString);
   this.driver.ingest(this.lastIngestPayload);
 });
+
+Given(
+  "scope {string} has recommendation context baseline {string} and scenario {string}",
+  function (this: OrgModelWorld, scopeId: string, baselineId: string, scenarioId: string) {
+    this.driver.createScope(scopeId);
+    this.driver.addUnit(scopeId, "engineering");
+    this.driver.addUnit(scopeId, "platform");
+    this.driver.addUnit(scopeId, "ops");
+    this.driver.addReportingLine(scopeId, "platform", "engineering");
+    this.driver.commitBaseline(scopeId, baselineId);
+    this.driver.createScenarioFromBaseline(baselineId, scenarioId);
+  }
+);
+
+Given("recommendation adapter fixture {string} is configured", function (this: OrgModelWorld, fixtureId: string) {
+  this.driver.useRecommendationFixture(fixtureId);
+});
+
+Given("a recommendation request:", function (this: OrgModelWorld, docString: string) {
+  this.lastRecommendationRequest = parseRecommendationRequest(docString);
+});
+
+When("recommendation generation runs", async function (this: OrgModelWorld) {
+  assert.ok(this.lastRecommendationRequest, "No recommendation request provided");
+  try {
+    this.lastRecommendationArtifact = await this.driver.requestRecommendation(this.lastRecommendationRequest);
+    this.previousRecommendationArtifact = undefined;
+    this.lastError = undefined;
+  } catch (error) {
+    this.lastError = error as OrgModelError;
+    this.lastRecommendationArtifact = undefined;
+  }
+});
+
+When("recommendation generation runs twice", async function (this: OrgModelWorld) {
+  assert.ok(this.lastRecommendationRequest, "No recommendation request provided");
+  this.previousRecommendationArtifact = await this.driver.requestRecommendation(this.lastRecommendationRequest);
+  this.lastRecommendationArtifact = await this.driver.requestRecommendation(this.lastRecommendationRequest);
+});
+
+When(
+  "latest recommendation is accepted by {string} at {string}",
+  function (this: OrgModelWorld, reviewedBy: string, reviewedAt: string) {
+    const recommendation = recommendationOrThrow(this);
+    this.driver.acceptRecommendation(recommendation.recommendationId, reviewedBy, reviewedAt);
+    this.lastRecommendationArtifact = this.driver.getRecommendation(recommendation.recommendationId);
+  }
+);
+
+When(
+  "latest recommendation is rejected by {string} at {string}",
+  function (this: OrgModelWorld, reviewedBy: string, reviewedAt: string) {
+    const recommendation = recommendationOrThrow(this);
+    this.driver.rejectRecommendation(recommendation.recommendationId, reviewedBy, reviewedAt);
+    this.lastRecommendationArtifact = this.driver.getRecommendation(recommendation.recommendationId);
+  }
+);
+
+Then("recommendation is created in state {string}", function (this: OrgModelWorld, expectedState: string) {
+  assert.equal(recommendationOrThrow(this).state, expectedState);
+});
+
+Then("recommendation has at least {int} suggested changes", function (this: OrgModelWorld, minimumChanges: number) {
+  assert.ok(recommendationOrThrow(this).suggestedChanges.length >= minimumChanges);
+});
+
+Then("recommendation rationale is present", function (this: OrgModelWorld) {
+  assert.ok(recommendationOrThrow(this).rationale.trim().length > 0);
+});
+
+Then(
+  "recommendation confidence score is between {float} and {float}",
+  function (this: OrgModelWorld, minScore: number, maxScore: number) {
+    const score = recommendationOrThrow(this).confidenceScore;
+    assert.ok(score >= minScore && score <= maxScore);
+  }
+);
+
+Then("recommendation affects entity {string}", function (this: OrgModelWorld, entityId: string) {
+  assert.ok(recommendationOrThrow(this).affectedEntityIds.includes(entityId));
+});
+
+Then(
+  "recommendation output matches golden fixture {string}",
+  function (this: OrgModelWorld, fixtureId: string) {
+    const expected = RECOMMENDATION_GOLDEN_FIXTURES[fixtureId];
+    assert.ok(expected, `Fixture ${fixtureId} is not defined`);
+    assert.ok(this.previousRecommendationArtifact, "Expected first recommendation artifact");
+    assert.ok(this.lastRecommendationArtifact, "Expected second recommendation artifact");
+
+    const normalize = (artifact: RecommendationArtifact) => ({
+      suggestedChanges: artifact.suggestedChanges,
+      rationale: artifact.rationale,
+      confidenceScore: artifact.confidenceScore,
+      affectedEntityIds: artifact.affectedEntityIds,
+      createdAt: artifact.createdAt
+    });
+
+    assert.deepEqual(normalize(this.previousRecommendationArtifact), normalize(this.lastRecommendationArtifact));
+    assert.deepEqual(normalize(this.lastRecommendationArtifact), expected);
+  }
+);
+
+Then(
+  "recommendation was reviewed by {string} at {string}",
+  function (this: OrgModelWorld, reviewedBy: string, reviewedAt: string) {
+    const recommendation = recommendationOrThrow(this);
+    assert.equal(recommendation.reviewedBy, reviewedBy);
+    assert.equal(recommendation.reviewedAt, reviewedAt);
+  }
+);
