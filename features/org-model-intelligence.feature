@@ -106,3 +106,95 @@ Feature: Org model intelligence requirements
       Then scenario "scenario-a" state is "archived"
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
+
+  Rule: REC recommendation generation and review workflow behavior
+
+    @REC-01 @REC-02 @REC-03 @S-REC-01
+    Scenario: Generate a structured recommendation artifact
+      Given scope "acme" has recommendation context baseline "baseline-rec-v1" and scenario "scenario-rec-a"
+      And a recommendation request:
+        """
+        {
+          "scopeId": "acme",
+          "baselineId": "baseline-rec-v1",
+          "scenarioId": "scenario-rec-a",
+          "constraints": [
+            { "type": "span_of_control", "targetEntityId": "platform", "value": 8 }
+          ],
+          "metricSnapshots": [
+            { "metricId": "engagement", "value": 0.62, "capturedAt": "2026-04-11T00:00:00.000Z" }
+          ],
+          "idempotencyKey": "rec-request-1"
+        }
+        """
+      When recommendation generation runs
+      Then recommendation is created in state "proposed"
+      And recommendation has at least 1 suggested changes
+      And recommendation rationale is present
+      And recommendation confidence score is between 0 and 1
+      And recommendation affects entity "platform"
+
+    @REC-02 @REC-05 @S-REC-02
+    Scenario: Recommendation output is deterministic with a mock ADK fixture
+      Given scope "acme" has recommendation context baseline "baseline-rec-v1" and scenario "scenario-rec-b"
+      And recommendation adapter fixture "golden-rec-default" is configured
+      And a recommendation request:
+        """
+        {
+          "scopeId": "acme",
+          "baselineId": "baseline-rec-v1",
+          "scenarioId": "scenario-rec-b",
+          "constraints": [
+            { "type": "span_of_control", "targetEntityId": "platform", "value": 8 }
+          ],
+          "metricSnapshots": [
+            { "metricId": "engagement", "value": 0.62, "capturedAt": "2026-04-11T00:00:00.000Z" }
+          ]
+        }
+        """
+      When recommendation generation runs twice
+      Then recommendation output matches golden fixture "golden-rec-default"
+
+    @REC-04 @S-REC-03
+    Scenario: Accept a proposed recommendation
+      Given scope "acme" has recommendation context baseline "baseline-rec-v1" and scenario "scenario-rec-c"
+      And a recommendation request:
+        """
+        {
+          "scopeId": "acme",
+          "baselineId": "baseline-rec-v1",
+          "scenarioId": "scenario-rec-c",
+          "constraints": [
+            { "type": "span_of_control", "targetEntityId": "platform", "value": 8 }
+          ],
+          "metricSnapshots": [
+            { "metricId": "engagement", "value": 0.62, "capturedAt": "2026-04-11T00:00:00.000Z" }
+          ]
+        }
+        """
+      When recommendation generation runs
+      And latest recommendation is accepted by "operator-1" at "2026-04-11T10:30:00.000Z"
+      Then recommendation is created in state "accepted"
+      And recommendation was reviewed by "operator-1" at "2026-04-11T10:30:00.000Z"
+
+    @REC-04 @S-REC-04
+    Scenario: Reject a proposed recommendation without mutating baseline
+      Given scope "acme" has recommendation context baseline "baseline-rec-v1" and scenario "scenario-rec-d"
+      And a recommendation request:
+        """
+        {
+          "scopeId": "acme",
+          "baselineId": "baseline-rec-v1",
+          "scenarioId": "scenario-rec-d",
+          "constraints": [
+            { "type": "span_of_control", "targetEntityId": "platform", "value": 8 }
+          ],
+          "metricSnapshots": [
+            { "metricId": "engagement", "value": 0.62, "capturedAt": "2026-04-11T00:00:00.000Z" }
+          ]
+        }
+        """
+      When recommendation generation runs
+      And latest recommendation is rejected by "operator-2" at "2026-04-11T11:00:00.000Z"
+      Then recommendation is created in state "rejected"
+      And baseline "baseline-rec-v1" unit "platform" reports to "engineering"
