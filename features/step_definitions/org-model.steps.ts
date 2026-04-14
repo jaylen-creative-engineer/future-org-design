@@ -2,7 +2,12 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import { OrgModelError } from "../support/org-model-driver.js";
 import { RECOMMENDATION_GOLDEN_FIXTURES } from "../support/org-model-driver.js";
-import type { IngestPayload, RecommendationArtifact, RecommendationRequest } from "../support/org-model-driver.js";
+import type {
+  IngestPayload,
+  RecommendationArtifact,
+  RecommendationRequest,
+  ScenarioScoreWeights
+} from "../support/org-model-driver.js";
 import { OrgModelWorld } from "../support/world.js";
 
 function parsePayload(docString: string): IngestPayload {
@@ -11,6 +16,23 @@ function parsePayload(docString: string): IngestPayload {
 
 function parseRecommendationRequest(docString: string): RecommendationRequest {
   return JSON.parse(docString) as RecommendationRequest;
+}
+
+function parseScenarioScoreWeights(docString: string): ScenarioScoreWeights {
+  return JSON.parse(docString) as ScenarioScoreWeights;
+}
+
+function assertClose(actual: number, expected: number, message: string): void {
+  const epsilon = 1e-12;
+  assert.ok(Math.abs(actual - expected) <= epsilon, `${message} (expected ${expected}, got ${actual})`);
+}
+
+function parseOptionalParent(token: string): string | undefined {
+  const t = token.trim();
+  if (t === "(unset)" || t === "") {
+    return undefined;
+  }
+  return t;
 }
 
 function recommendationOrThrow(world: OrgModelWorld): RecommendationArtifact {
@@ -181,6 +203,145 @@ Then(
   "baseline {string} unit {string} reports to {string}",
   function (this: OrgModelWorld, baselineId: string, unitId: string, expectedParentId: string) {
     assert.equal(this.driver.baselineParentOf(baselineId, unitId), expectedParentId);
+  }
+);
+
+Given(
+  "scope {string} has baseline {string} where manager {string} has direct reports {string} and {string}",
+  function (this: OrgModelWorld, scopeId: string, baselineId: string, managerId: string, firstId: string, secondId: string) {
+    this.driver.createScope(scopeId);
+    this.driver.addUnit(scopeId, managerId);
+    this.driver.addUnit(scopeId, firstId);
+    this.driver.addUnit(scopeId, secondId);
+    this.driver.addReportingLine(scopeId, firstId, managerId);
+    this.driver.addReportingLine(scopeId, secondId, managerId);
+    this.driver.commitBaseline(scopeId, baselineId);
+  }
+);
+
+Given(
+  "scope {string} has baseline {string} with three-unit chain {string} to {string} to {string}",
+  function (this: OrgModelWorld, scopeId: string, baselineId: string, rootId: string, midId: string, leafId: string) {
+    this.driver.createScope(scopeId);
+    this.driver.addUnit(scopeId, rootId);
+    this.driver.addUnit(scopeId, midId);
+    this.driver.addUnit(scopeId, leafId);
+    this.driver.addReportingLine(scopeId, midId, rootId);
+    this.driver.addReportingLine(scopeId, leafId, midId);
+    this.driver.commitBaseline(scopeId, baselineId);
+  }
+);
+
+Given("scenario score weights:", function (this: OrgModelWorld, docString: string) {
+  this.lastScenarioScoreWeights = parseScenarioScoreWeights(docString);
+});
+
+When("scenario {string} is scored", function (this: OrgModelWorld, scenarioId: string) {
+  assert.ok(this.lastScenarioScoreWeights, "No scenario score weights provided");
+  const result = this.driver.scoreScenario(scenarioId, this.lastScenarioScoreWeights);
+  this.scenarioScores.set(scenarioId, result);
+});
+
+Then(
+  "scenario {string} composite score equals scenario {string} composite score",
+  function (this: OrgModelWorld, scenarioA: string, scenarioB: string) {
+    const scoreA = this.scenarioScores.get(scenarioA);
+    const scoreB = this.scenarioScores.get(scenarioB);
+    assert.ok(scoreA, `No score for scenario ${scenarioA}`);
+    assert.ok(scoreB, `No score for scenario ${scenarioB}`);
+    assertClose(scoreA.composite, scoreB.composite, "Composite scores should match for identical structures");
+  }
+);
+
+Then(
+  "scenario {string} composite score is greater than scenario {string} composite score",
+  function (this: OrgModelWorld, betterScenario: string, worseScenario: string) {
+    const better = this.scenarioScores.get(betterScenario);
+    const worse = this.scenarioScores.get(worseScenario);
+    assert.ok(better, `No score for scenario ${betterScenario}`);
+    assert.ok(worse, `No score for scenario ${worseScenario}`);
+    assert.ok(
+      better.composite > worse.composite + 1e-12,
+      `Expected ${betterScenario} composite ${better.composite} > ${worseScenario} composite ${worse.composite}`
+    );
+  }
+);
+
+Then(
+  "scenario {string} score records at least {int} direct span violation units",
+  function (this: OrgModelWorld, scenarioId: string, minimumViolations: number) {
+    const score = this.scenarioScores.get(scenarioId);
+    assert.ok(score, `No score for scenario ${scenarioId}`);
+    assert.ok(
+      score.directSpanViolationUnits >= minimumViolations,
+      `Expected at least ${minimumViolations} span violation units, got ${score.directSpanViolationUnits}`
+    );
+  }
+);
+
+Then(
+  "scenario {string} composite score is between {float} and {float}",
+  function (this: OrgModelWorld, scenarioId: string, minScore: number, maxScore: number) {
+    const score = this.scenarioScores.get(scenarioId);
+    assert.ok(score, `No score for scenario ${scenarioId}`);
+    assert.ok(score.composite >= minScore && score.composite <= maxScore);
+  }
+);
+
+When("structural diff is computed for scenario {string}", function (this: OrgModelWorld, scenarioId: string) {
+  this.lastStructuralDiff = this.driver.diffScenarioVsBaseline(scenarioId);
+});
+
+When(
+  "structural diff is recomputed for scenario {string}",
+  function (this: OrgModelWorld, scenarioId: string) {
+    assert.ok(this.lastStructuralDiff, "Expected an earlier structural diff to compare against");
+    const next = this.driver.diffScenarioVsBaseline(scenarioId);
+    assert.deepEqual(this.lastStructuralDiff, next);
+    this.lastStructuralDiff = next;
+  }
+);
+
+Then("structural diff has {int} added units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.added.length, expected);
+});
+
+Then("structural diff has {int} removed units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.removed.length, expected);
+});
+
+Then("structural diff has {int} reparented units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.reparented.length, expected);
+});
+
+Then(
+  "structural diff reparented includes unit {string} from baseline parent {string} to scenario parent {string}",
+  function (this: OrgModelWorld, unitId: string, baselineParentToken: string, scenarioParentToken: string) {
+    assert.ok(this.lastStructuralDiff, "No structural diff computed");
+    const baselineParentId = parseOptionalParent(baselineParentToken);
+    const scenarioParentId = parseOptionalParent(scenarioParentToken);
+    const found = this.lastStructuralDiff.reparented.some(
+      (row) =>
+        row.unitId === unitId &&
+        row.baselineParentId === baselineParentId &&
+        row.scenarioParentId === scenarioParentId
+    );
+    assert.equal(found, true);
+  }
+);
+
+Then(
+  "structural diff added includes unit {string} with parent {string}",
+  function (this: OrgModelWorld, unitId: string, parentToken: string) {
+    assert.ok(this.lastStructuralDiff, "No structural diff computed");
+    const parentId = parseOptionalParent(parentToken);
+    const found = this.lastStructuralDiff.added.some(
+      (row) => row.unitId === unitId && row.parentId === parentId
+    );
+    assert.equal(found, true);
   }
 );
 

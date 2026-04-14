@@ -630,9 +630,9 @@
           "closed-loop-value-chain"
         ],
         "targetUnits": 12,
-        "builtUnits": 3,
+        "builtUnits": 5,
         "status": "in_progress",
-        "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Scoring and broader what-if catalog remain planned."
+        "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Deterministic structural diff vs baseline for added, removed, and reparented units with stable ids (@SCN-04, @S-SCN-02). Multi-criteria deterministic scoring (@SCN-05, @S-SCN-03). Parameters (SCN-03), comparison catalog (SCN-06), and broader what-if catalog remain planned."
       },
       {
         "id": "recommendation-intelligence",
