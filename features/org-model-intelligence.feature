@@ -149,6 +149,52 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+  Rule: SCN scenario multi-criteria scoring (SCN-05)
+
+    @SCN-05 @S-SCN-03
+    Scenario: Identical scenarios receive identical composite scores
+      Given scope "acme" has baseline "baseline-dup" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-dup-a" is created from baseline "baseline-dup"
+      And scenario "scenario-dup-b" is created from baseline "baseline-dup"
+      And scenario score weights:
+        """
+        {
+          "maxDirectSpan": 8,
+          "headcountReference": 10,
+          "depthReference": 10,
+          "weightHeadcountPressure": 1,
+          "weightSpanCompliance": 1,
+          "weightDepthComplexity": 1
+        }
+        """
+      When scenario "scenario-dup-a" is scored
+      And scenario "scenario-dup-b" is scored
+      Then scenario "scenario-dup-a" composite score equals scenario "scenario-dup-b" composite score
+
+    @SCN-05
+    Scenario: Span-heavy org shapes score lower than shallow chains under span-weighted criteria
+      Given scope "acme" has baseline "baseline-wide" where manager "engineering" has direct reports "platform" and "sales"
+      And scope "acme" has baseline "baseline-chain" with three-unit chain "engineering" to "platform" to "sales"
+      When scenario "scenario-wide" is created from baseline "baseline-wide"
+      And scenario "scenario-chain" is created from baseline "baseline-chain"
+      And scenario score weights:
+        """
+        {
+          "maxDirectSpan": 1,
+          "headcountReference": 10,
+          "depthReference": 10,
+          "weightHeadcountPressure": 1,
+          "weightSpanCompliance": 10,
+          "weightDepthComplexity": 1
+        }
+        """
+      When scenario "scenario-wide" is scored
+      And scenario "scenario-chain" is scored
+      Then scenario "scenario-wide" score records at least 1 direct span violation units
+      And scenario "scenario-wide" composite score is between 0 and 1
+      And scenario "scenario-chain" composite score is between 0 and 1
+      And scenario "scenario-chain" composite score is greater than scenario "scenario-wide" composite score
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01

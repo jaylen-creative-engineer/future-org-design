@@ -26,6 +26,36 @@ export interface ScenarioView {
 
 export type ScenarioState = "draft" | "ready" | "archived";
 
+/** Weights and normalization anchors for SCN-05 multi-criteria scenario scoring. */
+export interface ScenarioScoreWeights {
+  /** Direct reports above this count (per manager) accrue span pressure. */
+  maxDirectSpan: number;
+  /** Denominator for headcount proxy (>= 1). */
+  headcountReference: number;
+  /** Denominator for max-depth complexity proxy (>= 1). */
+  depthReference: number;
+  weightHeadcountPressure: number;
+  weightSpanCompliance: number;
+  weightDepthComplexity: number;
+}
+
+/** Normalized 0..1 criteria inputs (lower is better before composite inversion). */
+export interface ScenarioScoreComponents {
+  headcountPressure: number;
+  spanCompliance: number;
+  depthComplexity: number;
+}
+
+export interface ScenarioScoreResult {
+  /** 0..1 where higher is a better-scoring structure under the given weights. */
+  composite: number;
+  components: ScenarioScoreComponents;
+  /** Sum of max(0, directCount - maxDirectSpan) across managers. */
+  directSpanViolationUnits: number;
+  unitCount: number;
+  maxDepth: number;
+}
+
 export interface RecommendationConstraint {
   type: string;
   targetEntityId: string;
@@ -125,6 +155,102 @@ function cloneRecommendationDraft(draft: RecommendationDraft): RecommendationDra
     ...draft,
     suggestedChanges: draft.suggestedChanges.map((change) => ({ ...change })),
     affectedEntityIds: [...draft.affectedEntityIds]
+  };
+}
+
+function depthForUnit(
+  units: Map<string, { id: string; name: string; parentId?: string }>,
+  unitId: string
+): number {
+  let depth = 0;
+  let cursor: string | undefined = units.get(unitId)?.parentId;
+  while (cursor) {
+    depth += 1;
+    cursor = units.get(cursor)?.parentId;
+  }
+  return depth;
+}
+
+function maxDepthAcrossUnits(
+  units: Map<string, { id: string; name: string; parentId?: string }>
+): number {
+  let maxDepth = 0;
+  for (const unitId of units.keys()) {
+    maxDepth = Math.max(maxDepth, depthForUnit(units, unitId));
+  }
+  return maxDepth;
+}
+
+function directReportCounts(
+  units: Map<string, { id: string; name: string; parentId?: string }>
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const { parentId } of units.values()) {
+    if (!parentId) {
+      continue;
+    }
+    counts.set(parentId, (counts.get(parentId) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Deterministic SCN-05 score: same org graph + weights ⇒ same composite (S-SCN-03). */
+export function scoreScenarioStructure(
+  units: Map<string, { id: string; name: string; parentId?: string }>,
+  weights: ScenarioScoreWeights
+): ScenarioScoreResult {
+  if (weights.headcountReference < 1 || weights.depthReference < 1) {
+    throw new OrgModelError(
+      "INVALID_SCENARIO_SCORE_WEIGHTS",
+      "headcountReference and depthReference must be at least 1"
+    );
+  }
+  if (weights.maxDirectSpan < 0) {
+    throw new OrgModelError("INVALID_SCENARIO_SCORE_WEIGHTS", "maxDirectSpan must be non-negative");
+  }
+
+  const { weightHeadcountPressure, weightSpanCompliance, weightDepthComplexity } = weights;
+  const weightSum = weightHeadcountPressure + weightSpanCompliance + weightDepthComplexity;
+  if (weightSum <= 0) {
+    throw new OrgModelError(
+      "INVALID_SCENARIO_SCORE_WEIGHTS",
+      "At least one scenario score weight must be positive"
+    );
+  }
+
+  const unitCount = units.size;
+  const headcountPressure = Math.min(1, unitCount / weights.headcountReference);
+
+  const directs = directReportCounts(units);
+  let directSpanViolationUnits = 0;
+  for (const count of directs.values()) {
+    if (count > weights.maxDirectSpan) {
+      directSpanViolationUnits += count - weights.maxDirectSpan;
+    }
+  }
+  const spanCompliance = Math.min(1, directSpanViolationUnits / weights.headcountReference);
+
+  const maxDepth = maxDepthAcrossUnits(units);
+  const depthComplexity = Math.min(1, maxDepth / weights.depthReference);
+
+  const pressure =
+    (weightHeadcountPressure * headcountPressure +
+      weightSpanCompliance * spanCompliance +
+      weightDepthComplexity * depthComplexity) /
+    weightSum;
+
+  const composite = 1 - pressure;
+
+  return {
+    composite,
+    components: {
+      headcountPressure,
+      spanCompliance,
+      depthComplexity
+    },
+    directSpanViolationUnits,
+    unitCount,
+    maxDepth
   };
 }
 
@@ -339,6 +465,14 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
     }
     return baseline.units.get(unitId)?.parentId;
+  }
+
+  scoreScenario(scenarioId: string, weights: ScenarioScoreWeights): ScenarioScoreResult {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    return scoreScenarioStructure(scenario.units, weights);
   }
 
   useRecommendationFixture(fixtureId: string): void {
