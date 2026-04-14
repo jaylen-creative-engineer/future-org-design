@@ -149,6 +149,39 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+  Rule: SCN scenario structural diff vs baseline (SCN-04)
+
+    @SCN-04 @S-SCN-02
+    Scenario: Structural diff lists reporting changes with stable unit references
+      Given scope "acme" has baseline "baseline-diff" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-diff" is created from baseline "baseline-diff"
+      When subtree rooted at "platform" is moved under "ops" in scenario "scenario-diff"
+      When structural diff is computed for scenario "scenario-diff"
+      Then structural diff has 0 added units
+      And structural diff has 0 removed units
+      And structural diff has 1 reparented units
+      And structural diff reparented includes unit "platform" from baseline parent "engineering" to scenario parent "ops"
+      When structural diff is recomputed for scenario "scenario-diff"
+
+    @SCN-04 @SCN-02
+    Scenario: Structural diff lists scenario-only units as added
+      Given scope "acme" has baseline "baseline-add" with unit "engineering"
+      When scenario "scenario-add" is created from baseline "baseline-add" and unit "innovation" is added to that scenario
+      When structural diff is computed for scenario "scenario-add"
+      Then structural diff has 1 added units
+      And structural diff has 0 removed units
+      And structural diff has 0 reparented units
+      And structural diff added includes unit "innovation" with parent "(unset)"
+
+    @SCN-04
+    Scenario: Fresh scenario fork matches baseline with empty structural diff
+      Given scope "acme" has baseline "baseline-pristine" with unit "engineering"
+      When scenario "scenario-pristine" is created from baseline "baseline-pristine"
+      When structural diff is computed for scenario "scenario-pristine"
+      Then structural diff has 0 added units
+      And structural diff has 0 removed units
+      And structural diff has 0 reparented units
+
   Rule: SCN scenario multi-criteria scoring (SCN-05)
 
     @SCN-05 @S-SCN-03

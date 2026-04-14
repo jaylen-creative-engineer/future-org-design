@@ -27,6 +27,14 @@ function assertClose(actual: number, expected: number, message: string): void {
   assert.ok(Math.abs(actual - expected) <= epsilon, `${message} (expected ${expected}, got ${actual})`);
 }
 
+function parseOptionalParent(token: string): string | undefined {
+  const t = token.trim();
+  if (t === "(unset)" || t === "") {
+    return undefined;
+  }
+  return t;
+}
+
 function recommendationOrThrow(world: OrgModelWorld): RecommendationArtifact {
   assert.ok(world.lastRecommendationArtifact, "Expected a recommendation artifact");
   return world.lastRecommendationArtifact;
@@ -277,6 +285,63 @@ Then(
     const score = this.scenarioScores.get(scenarioId);
     assert.ok(score, `No score for scenario ${scenarioId}`);
     assert.ok(score.composite >= minScore && score.composite <= maxScore);
+  }
+);
+
+When("structural diff is computed for scenario {string}", function (this: OrgModelWorld, scenarioId: string) {
+  this.lastStructuralDiff = this.driver.diffScenarioVsBaseline(scenarioId);
+});
+
+When(
+  "structural diff is recomputed for scenario {string}",
+  function (this: OrgModelWorld, scenarioId: string) {
+    assert.ok(this.lastStructuralDiff, "Expected an earlier structural diff to compare against");
+    const next = this.driver.diffScenarioVsBaseline(scenarioId);
+    assert.deepEqual(this.lastStructuralDiff, next);
+    this.lastStructuralDiff = next;
+  }
+);
+
+Then("structural diff has {int} added units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.added.length, expected);
+});
+
+Then("structural diff has {int} removed units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.removed.length, expected);
+});
+
+Then("structural diff has {int} reparented units", function (this: OrgModelWorld, expected: number) {
+  assert.ok(this.lastStructuralDiff, "No structural diff computed");
+  assert.equal(this.lastStructuralDiff.reparented.length, expected);
+});
+
+Then(
+  "structural diff reparented includes unit {string} from baseline parent {string} to scenario parent {string}",
+  function (this: OrgModelWorld, unitId: string, baselineParentToken: string, scenarioParentToken: string) {
+    assert.ok(this.lastStructuralDiff, "No structural diff computed");
+    const baselineParentId = parseOptionalParent(baselineParentToken);
+    const scenarioParentId = parseOptionalParent(scenarioParentToken);
+    const found = this.lastStructuralDiff.reparented.some(
+      (row) =>
+        row.unitId === unitId &&
+        row.baselineParentId === baselineParentId &&
+        row.scenarioParentId === scenarioParentId
+    );
+    assert.equal(found, true);
+  }
+);
+
+Then(
+  "structural diff added includes unit {string} with parent {string}",
+  function (this: OrgModelWorld, unitId: string, parentToken: string) {
+    assert.ok(this.lastStructuralDiff, "No structural diff computed");
+    const parentId = parseOptionalParent(parentToken);
+    const found = this.lastStructuralDiff.added.some(
+      (row) => row.unitId === unitId && row.parentId === parentId
+    );
+    assert.equal(found, true);
   }
 );
 

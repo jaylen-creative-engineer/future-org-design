@@ -56,6 +56,30 @@ export interface ScenarioScoreResult {
   maxDepth: number;
 }
 
+/** SCN-04 structural delta vs baseline snapshot (stable unit ids, sorted lists). */
+export interface ScenarioStructuralDiffAdded {
+  unitId: string;
+  parentId?: string;
+}
+
+export interface ScenarioStructuralDiffRemoved {
+  unitId: string;
+  /** Parent link in the baseline snapshot (undefined if free-floating in baseline). */
+  parentId?: string;
+}
+
+export interface ScenarioStructuralDiffReparented {
+  unitId: string;
+  baselineParentId?: string;
+  scenarioParentId?: string;
+}
+
+export interface ScenarioStructuralDiff {
+  added: ScenarioStructuralDiffAdded[];
+  removed: ScenarioStructuralDiffRemoved[];
+  reparented: ScenarioStructuralDiffReparented[];
+}
+
 export interface RecommendationConstraint {
   type: string;
   targetEntityId: string;
@@ -251,6 +275,68 @@ export function scoreScenarioStructure(
     directSpanViolationUnits,
     unitCount,
     maxDepth
+  };
+}
+
+function sortByUnitId<T extends { unitId: string }>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => a.unitId.localeCompare(b.unitId));
+}
+
+/**
+ * Deterministic SCN-04 diff: same baseline + scenario maps ⇒ same diff (stable ordering by unitId).
+ */
+export function diffScenarioUnitsAgainstBaseline(
+  baselineUnits: Map<string, { id: string; name: string; parentId?: string }>,
+  scenarioUnits: Map<string, { id: string; name: string; parentId?: string }>
+): ScenarioStructuralDiff {
+  const baseIds = new Set(baselineUnits.keys());
+  const scenIds = new Set(scenarioUnits.keys());
+
+  const added: ScenarioStructuralDiffAdded[] = [];
+  for (const id of scenIds) {
+    if (!baseIds.has(id)) {
+      const u = scenarioUnits.get(id);
+      if (!u) {
+        continue;
+      }
+      added.push({ unitId: id, parentId: u.parentId });
+    }
+  }
+
+  const removed: ScenarioStructuralDiffRemoved[] = [];
+  for (const id of baseIds) {
+    if (!scenIds.has(id)) {
+      const u = baselineUnits.get(id);
+      if (!u) {
+        continue;
+      }
+      removed.push({ unitId: id, parentId: u.parentId });
+    }
+  }
+
+  const reparented: ScenarioStructuralDiffReparented[] = [];
+  for (const id of baseIds) {
+    if (!scenIds.has(id)) {
+      continue;
+    }
+    const b = baselineUnits.get(id);
+    const s = scenarioUnits.get(id);
+    if (!b || !s) {
+      continue;
+    }
+    if (b.parentId !== s.parentId) {
+      reparented.push({
+        unitId: id,
+        baselineParentId: b.parentId,
+        scenarioParentId: s.parentId
+      });
+    }
+  }
+
+  return {
+    added: sortByUnitId(added),
+    removed: sortByUnitId(removed),
+    reparented: sortByUnitId(reparented)
   };
 }
 
@@ -473,6 +559,18 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
     }
     return scoreScenarioStructure(scenario.units, weights);
+  }
+
+  diffScenarioVsBaseline(scenarioId: string): ScenarioStructuralDiff {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+    return diffScenarioUnitsAgainstBaseline(baseline.units, scenario.units);
   }
 
   useRecommendationFixture(fixtureId: string): void {

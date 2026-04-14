@@ -43,6 +43,7 @@ npm run integration:check
 | DATA-05 | S-DATA-06 |
 | SCN-01 | S-SCN-01 |
 | SCN-02 | S-SCN-01 |
+| SCN-04 | S-SCN-02 |
 | SCN-05 | S-SCN-03 |
 
 ## Completion gate

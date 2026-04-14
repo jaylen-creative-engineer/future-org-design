@@ -6,7 +6,8 @@ import type {
   RecommendationArtifact,
   RecommendationRequest,
   ScenarioScoreResult,
-  ScenarioScoreWeights
+  ScenarioScoreWeights,
+  ScenarioStructuralDiff
 } from "./org-model-driver.js";
 
 export class OrgModelWorld extends World {
@@ -19,6 +20,7 @@ export class OrgModelWorld extends World {
   previousRecommendationArtifact?: RecommendationArtifact;
   lastScenarioScoreWeights?: ScenarioScoreWeights;
   readonly scenarioScores = new Map<string, ScenarioScoreResult>();
+  lastStructuralDiff?: ScenarioStructuralDiff;
 
   constructor(options: IWorldOptions) {
     super(options);
