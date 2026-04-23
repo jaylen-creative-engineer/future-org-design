@@ -31,7 +31,11 @@ function parseCliArgs(rawArgs) {
       if (!next || next.startsWith("-")) {
         throw new Error("Missing value for --tags");
       }
-      parsed.tags = next;
+      const normalizedTags = normalizeTagsExpression(next);
+      if (!normalizedTags) {
+        throw new Error("Tag expression for --tags cannot be empty");
+      }
+      parsed.tags = normalizedTags;
       i += 1;
       continue;
     }
@@ -65,6 +69,10 @@ Examples:
 
 function formatCommand(commandParts) {
   return commandParts.map((part) => (part.includes(" ") ? `"${part}"` : part)).join(" ");
+}
+
+function normalizeTagsExpression(expression) {
+  return expression.replace(/\s+/g, " ").trim();
 }
 
 function printExecutionPlan({ dryRun, tags, commandLabel }) {
@@ -115,17 +123,14 @@ if (args.dryRun) {
 
 printExecutionPlan({ dryRun: false, tags: args.tags, commandLabel });
 
-const runSpinner = spinner();
-runSpinner.start("Running functional flows via Cucumber...");
-
 try {
   if (args.tags) {
-    await $`npm run bdd -- --tags ${args.tags}`;
+    await spinner("Running functional flows via Cucumber...", async () => $`npm run bdd -- --tags ${args.tags}`);
   } else {
-    await $`npm run bdd`;
+    await spinner("Running functional flows via Cucumber...", async () => $`npm run bdd`);
   }
-  runSpinner.succeed(chalk.green("Functional flows completed successfully."));
+  console.log(chalk.green("Result: Functional flows completed successfully."));
 } catch (error) {
-  runSpinner.fail(chalk.red("Functional flows failed."));
+  console.error(chalk.red("Result: Functional flows failed."));
   throw error;
 }
