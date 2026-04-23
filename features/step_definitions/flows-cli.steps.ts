@@ -59,14 +59,12 @@ Then("the functional flows CLI command exits successfully", function (this: OrgM
 });
 
 Then(
-  "the functional flows CLI dry-run command includes tags expression {string}",
-  function (this: OrgModelWorld, tagsExpression: string) {
+  "the functional flows CLI output includes label {string}",
+  function (this: OrgModelWorld, label: string) {
     assert.ok(this.lastFlowsCliResult, "Expected CLI process result");
-    const expectedExpression = new RegExp(String.raw`npm run bdd -- --tags .*${tagsExpression.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`);
-    assert.match(
-      this.lastFlowsCliResult.stdout,
-      expectedExpression,
-      `Expected stdout to include a command with tags expression ${tagsExpression}\nActual stdout:\n${this.lastFlowsCliResult.stdout}\nStderr:\n${this.lastFlowsCliResult.stderr}`
+    assert.ok(
+      this.lastFlowsCliResult.stdout.includes(label),
+      `Expected stdout to include label "${label}"\nActual stdout:\n${this.lastFlowsCliResult.stdout}\nStderr:\n${this.lastFlowsCliResult.stderr}`
     );
   }
 );

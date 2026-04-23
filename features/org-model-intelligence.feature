@@ -244,8 +244,11 @@ Feature: Org model intelligence requirements
   Rule: FLOWS cli execution behavior
 
     @FLOWS-01 @S-FLOWS-01
-    Scenario: Build functional flow command with tags in dry-run mode
+    Scenario: Preview labeled flow execution plan with tags in dry-run mode
       Given the functional flows CLI command is prepared with tags expression "@ORG-01 or @REC-01"
       When the functional flows CLI command is executed
       Then the functional flows CLI command exits successfully
-      And the functional flows CLI dry-run command includes tags expression "@ORG-01 or @REC-01"
+      And the functional flows CLI output includes label "Mode: Preview only (dry-run)"
+      And the functional flows CLI output includes label "Scenario filter: @ORG-01 or @REC-01"
+      And the functional flows CLI output includes label "Execution command: npm run bdd -- --tags \"@ORG-01 or @REC-01\""
+      And the functional flows CLI output includes label "Next step: remove --dry-run to execute this command."

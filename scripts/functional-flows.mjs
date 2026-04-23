@@ -1,6 +1,6 @@
 #!/usr/bin/env zx
 
-import { chalk, quote, spinner, $ } from "zx";
+import { chalk, spinner, $ } from "zx";
 
 /**
  * Parse a minimal argument surface for flow test execution.
@@ -42,14 +42,17 @@ function parseCliArgs(rawArgs) {
 }
 
 const showHelp = () => {
-  console.log(`Run executable functional flows for this project.
+  console.log(`Functional Flows Navigator
+
+Purpose:
+  Run or preview executable functional flows backed by Cucumber.
 
 Usage:
   npm run flows:test -- [options]
 
 Options:
-  -t, --tags <expression>  Run only matching Cucumber scenarios
-      --dry-run            Print the generated command without executing
+  -t, --tags <expression>  Run only matching Cucumber scenario tags
+      --dry-run            Preview the execution plan without running tests
   -h, --help               Show this help text
 
 Examples:
@@ -60,6 +63,21 @@ Examples:
 `);
 };
 
+function formatCommand(commandParts) {
+  return commandParts.map((part) => (part.includes(" ") ? `"${part}"` : part)).join(" ");
+}
+
+function printExecutionPlan({ dryRun, tags, commandLabel }) {
+  console.log("Functional Flows Navigator");
+  console.log("==========================");
+  console.log(`Mode: ${dryRun ? "Preview only (dry-run)" : "Execute scenarios"}`);
+  console.log(`Scenario filter: ${tags ?? "All scenarios in features/**/*.feature"}`);
+  console.log(`Execution command: ${commandLabel}`);
+  if (dryRun) {
+    console.log("Next step: remove --dry-run to execute this command.");
+  }
+}
+
 function getUserArgs() {
   const args = process.argv.slice(2);
   if (args[0]?.endsWith(".mjs")) {
@@ -68,7 +86,15 @@ function getUserArgs() {
   return args;
 }
 
-const args = parseCliArgs(getUserArgs());
+let args;
+try {
+  args = parseCliArgs(getUserArgs());
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`Input error: ${message}`);
+  console.error("Run `npm run flows:test -- --help` for usage.");
+  process.exit(1);
+}
 
 if (args.help) {
   showHelp();
@@ -80,12 +106,14 @@ if (args.tags) {
   command.push("--", "--tags", args.tags);
 }
 
-const commandLabel = command.map((part) => quote(part)).join(" ");
+const commandLabel = formatCommand(command);
 
 if (args.dryRun) {
-  console.log(commandLabel);
+  printExecutionPlan({ dryRun: true, tags: args.tags, commandLabel });
   process.exit(0);
 }
+
+printExecutionPlan({ dryRun: false, tags: args.tags, commandLabel });
 
 const runSpinner = spinner();
 runSpinner.start("Running functional flows via Cucumber...");
