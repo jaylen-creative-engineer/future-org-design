@@ -1,4 +1,4 @@
-@org-model-intelligence
+@org-model-intelligence @flows-cli
 Feature: Org model intelligence requirements
   As a platform builder
   I want executable requirements for org model intelligence
@@ -240,3 +240,12 @@ Feature: Org model intelligence requirements
       And latest recommendation is rejected by "operator-2" at "2026-04-11T11:00:00.000Z"
       Then recommendation is created in state "rejected"
       And baseline "baseline-rec-v1" unit "platform" reports to "engineering"
+
+  Rule: FLOWS cli execution behavior
+
+    @FLOWS-01 @S-FLOWS-01
+    Scenario: Build functional flow command with tags in dry-run mode
+      Given the functional flows CLI command is prepared with tags expression "@ORG-01 or @REC-01"
+      When the functional flows CLI command is executed
+      Then the functional flows CLI command exits successfully
+      And the functional flows CLI dry-run command includes tags expression "@ORG-01 or @REC-01"

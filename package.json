@@ -14,6 +14,7 @@
     "graph:check": "tsx src/knowledge-graph/check-graph-view.cli.ts",
     "integration:check": "npm run typecheck && npm run lat:check && npm test && npm run bdd",
     "verify": "npm run integration:check",
+    "flows:test": "zx scripts/functional-flows.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run && npm run graph:check",
     "test:watch": "vitest",
@@ -28,7 +29,8 @@
     "lat.md": "^0.11.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "zx": "^8.8.5"
   },
   "dependencies": {
     "next": "^16.2.3",

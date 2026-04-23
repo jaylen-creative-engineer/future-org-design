@@ -8,4 +8,6 @@ Before(function (this: OrgModelWorld) {
   this.lastRecommendationRequest = undefined;
   this.lastRecommendationArtifact = undefined;
   this.previousRecommendationArtifact = undefined;
+  this.flowsCliArgs = undefined;
+  this.lastFlowsCliResult = undefined;
 });

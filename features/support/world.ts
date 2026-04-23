@@ -12,6 +12,8 @@ export class OrgModelWorld extends World {
   lastRecommendationRequest?: RecommendationRequest;
   lastRecommendationArtifact?: RecommendationArtifact;
   previousRecommendationArtifact?: RecommendationArtifact;
+  flowsCliArgs?: string[];
+  lastFlowsCliResult?: { exitCode: number; stdout: string; stderr: string };
 
   constructor(options: IWorldOptions) {
     super(options);
