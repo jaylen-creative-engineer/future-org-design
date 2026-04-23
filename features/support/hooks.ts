@@ -9,5 +9,6 @@ Before(function (this: OrgModelWorld) {
   this.lastRecommendationArtifact = undefined;
   this.previousRecommendationArtifact = undefined;
   this.flowsCliArgs = undefined;
+  this.flowsCliConversationInput = undefined;
   this.lastFlowsCliResult = undefined;
 });

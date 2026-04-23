@@ -13,6 +13,7 @@ export class OrgModelWorld extends World {
   lastRecommendationArtifact?: RecommendationArtifact;
   previousRecommendationArtifact?: RecommendationArtifact;
   flowsCliArgs?: string[];
+  flowsCliConversationInput?: string[];
   lastFlowsCliResult?: { exitCode: number; stdout: string; stderr: string };
 
   constructor(options: IWorldOptions) {
