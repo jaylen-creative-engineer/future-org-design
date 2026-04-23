@@ -33,6 +33,7 @@ This snapshot records shipped scenario-intelligence and recommendation-intellige
 - Org model intelligence (structure + ingest) is at full planned unit coverage in `features/org-model-intelligence.feature` (`@ORG-01` through `@ORG-06`, `@DATA-01` through `@DATA-05`, including ingest-time cycle detection and unknown-parent rejection).
 - Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
 - Recommendation intelligence now has executable artifact generation + review workflow coverage in `features/org-model-intelligence.feature` (`@REC-01` to `@REC-05`, `@S-REC-01` to `@S-REC-04`).
+- Functional flow execution now has a zx CLI entrypoint via `npm run flows:test` (wrapper around Cucumber) with `--tags` filtering and `--dry-run` preview support for safe test selection.
 - Implemented behavior:
   - scenario copies are created from immutable baselines
   - scenario state transitions follow `draft -> ready -> archived`

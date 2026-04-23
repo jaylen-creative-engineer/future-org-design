@@ -1,4 +1,4 @@
-@org-model-intelligence
+@org-model-intelligence @flows-cli
 Feature: Org model intelligence requirements
   As a platform builder
   I want executable requirements for org model intelligence
@@ -240,3 +240,34 @@ Feature: Org model intelligence requirements
       And latest recommendation is rejected by "operator-2" at "2026-04-11T11:00:00.000Z"
       Then recommendation is created in state "rejected"
       And baseline "baseline-rec-v1" unit "platform" reports to "engineering"
+
+  Rule: FLOWS cli execution behavior
+
+    @FLOWS-01 @S-FLOWS-01
+    Scenario: Preview labeled flow execution plan with tags in dry-run mode
+      Given the functional flows CLI command is prepared with tags expression "@ORG-01 or @REC-01"
+      When the functional flows CLI command is executed
+      Then the functional flows CLI command exits successfully
+      And the functional flows CLI output includes label "Mode: Preview only (dry-run)"
+      And the functional flows CLI output includes label "Scenario filter: @ORG-01 or @REC-01"
+      And the functional flows CLI output includes label "Execution command: npm run bdd -- --tags \"@ORG-01 or @REC-01\""
+      And the functional flows CLI output includes label "Next step: remove --dry-run to execute this command."
+
+    @FLOWS-02 @S-FLOWS-02
+    Scenario: Conversational mode guides user to a preview plan
+      Given the conversational functional flows CLI command is prepared
+      And the conversational functional flows CLI responses are:
+        """
+        1
+        2
+        @ORG-01 or @REC-01
+        """
+      When the conversational functional flows CLI command is executed
+      Then the functional flows CLI command exits successfully
+      And the functional flows CLI output includes label "Conversation mode: enabled"
+      And the functional flows CLI output includes label "Step 1 - Choose how to run:"
+      And the functional flows CLI output includes label "Step 2 - Choose scenario scope:"
+      And the functional flows CLI output includes label "Tell me the tag expression to run"
+      And the functional flows CLI output includes label "Mode: Preview only (dry-run)"
+      And the functional flows CLI output includes label "Scenario filter: @ORG-01 or @REC-01"
+      And the functional flows CLI output includes label "Next step: remove --dry-run to execute this command."
