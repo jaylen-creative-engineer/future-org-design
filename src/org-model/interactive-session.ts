@@ -9,8 +9,15 @@ export interface InteractiveIo {
 
 export class InteractiveOrgCliSession {
   private currentScopeId?: string;
+  private readonly actionHistory: string[];
 
-  constructor(private readonly repository: OrgModelRepository, private readonly io: InteractiveIo) {}
+  constructor(
+    private readonly repository: OrgModelRepository,
+    private readonly io: InteractiveIo,
+    actionHistory: string[] = []
+  ) {
+    this.actionHistory = actionHistory;
+  }
 
   async run(): Promise<void> {
     await this.repository.ensureSchema();
@@ -21,6 +28,8 @@ export class InteractiveOrgCliSession {
     while (keepRunning) {
       this.io.output(this.currentScopeId ? `Current scope: ${this.currentScopeId}` : "No scope selected");
       const selection = await this.io.choose("Choose action", [
+        "View validation flow map",
+        "Run guided walkthrough (baseline -> scenario -> recommendation)",
         "Switch scope",
         "Create scope",
         "Add unit",
@@ -28,11 +37,19 @@ export class InteractiveOrgCliSession {
         "Create baseline",
         "Create scenario from baseline",
         "Create recommendation draft",
+        "Show action history",
         "Inspect current scope data",
         "Exit"
       ]);
 
       switch (selection) {
+        case "View validation flow map":
+          this.showValidationFlowMap();
+          this.logAction("Viewed validation flow map");
+          break;
+        case "Run guided walkthrough (baseline -> scenario -> recommendation)":
+          await this.runGuidedWalkthrough();
+          break;
         case "Switch scope":
           await this.switchScope();
           break;
@@ -54,8 +71,12 @@ export class InteractiveOrgCliSession {
         case "Create recommendation draft":
           await this.requireScope(() => this.createRecommendation());
           break;
+        case "Show action history":
+          this.showActionHistory();
+          break;
         case "Inspect current scope data":
           await this.requireScope(() => this.inspectScopeData());
+          this.logAction(`Inspected scope snapshot for ${this.currentScopeId as string}`);
           break;
         case "Exit":
           keepRunning = false;
@@ -96,6 +117,7 @@ export class InteractiveOrgCliSession {
     );
     this.currentScopeId = selected;
     this.io.output(`Switched to scope: ${selected}`);
+    this.logAction(`Switched scope to ${selected}`);
   }
 
   private async createScope(): Promise<void> {
@@ -108,6 +130,7 @@ export class InteractiveOrgCliSession {
     await this.repository.createScope(scopeId, name);
     this.currentScopeId = scopeId;
     this.io.output(`Scope ${scopeId} ready.`);
+    this.logAction(`Created/updated scope ${scopeId}`);
   }
 
   private async addUnit(): Promise<void> {
@@ -119,6 +142,7 @@ export class InteractiveOrgCliSession {
     }
     await this.repository.upsertUnit(this.currentScopeId as string, unitId, name);
     this.io.output(`Unit ${unitId} saved in scope ${this.currentScopeId}.`);
+    this.logAction(`Added/updated unit ${unitId} in ${this.currentScopeId as string}`);
   }
 
   private async addReportingLine(): Promise<void> {
@@ -130,6 +154,7 @@ export class InteractiveOrgCliSession {
     }
     await this.repository.addReportingLine(this.currentScopeId as string, childId, parentId);
     this.io.output(`Reporting line saved: ${childId} -> ${parentId}.`);
+    this.logAction(`Linked ${childId} -> ${parentId} in ${this.currentScopeId as string}`);
   }
 
   private async createBaseline(): Promise<void> {
@@ -140,6 +165,7 @@ export class InteractiveOrgCliSession {
     }
     await this.repository.createBaseline(this.currentScopeId as string, baselineId);
     this.io.output(`Baseline ${baselineId} created from current units.`);
+    this.logAction(`Created baseline ${baselineId} in ${this.currentScopeId as string}`);
   }
 
   private async createScenarioFromBaseline(): Promise<void> {
@@ -160,6 +186,7 @@ export class InteractiveOrgCliSession {
     }
     await this.repository.createScenarioFromBaseline(this.currentScopeId as string, baselineId, scenarioId);
     this.io.output(`Scenario ${scenarioId} created from baseline ${baselineId}.`);
+    this.logAction(`Created scenario ${scenarioId} from baseline ${baselineId}`);
   }
 
   private async createRecommendation(): Promise<void> {
@@ -193,6 +220,7 @@ export class InteractiveOrgCliSession {
       confidenceScore
     );
     this.io.output(`Recommendation created for scenario ${scenarioId}.`);
+    this.logAction(`Created recommendation draft for scenario ${scenarioId}`);
   }
 
   private async inspectScopeData(): Promise<void> {
@@ -227,5 +255,49 @@ export class InteractiveOrgCliSession {
       );
     }
     this.io.output("--- end snapshot ---");
+  }
+
+  private showValidationFlowMap(): void {
+    this.io.output("--- Validation flow map ---");
+    this.io.output("1) Create or switch scope");
+    this.io.output("2) Add units and reporting lines");
+    this.io.output("3) Create baseline snapshot");
+    this.io.output("4) Fork scenario from baseline");
+    this.io.output("5) Draft recommendation");
+    this.io.output("6) Inspect scope data and compare outcomes");
+    this.io.output("Tip: use action history to review navigation behavior.");
+    this.io.output("--- end flow map ---");
+  }
+
+  private async runGuidedWalkthrough(): Promise<void> {
+    await this.requireScope(async () => {
+      this.io.output("--- Guided walkthrough ---");
+      this.io.output("This sequence helps validate end-to-end operator navigation.");
+      await this.addUnit();
+      await this.createBaseline();
+      await this.createScenarioFromBaseline();
+      await this.createRecommendation();
+      await this.inspectScopeData();
+      this.io.output("Completed guided walkthrough.");
+      this.io.output("--- End guided walkthrough ---");
+      this.logAction("Completed guided walkthrough");
+    });
+  }
+
+  private showActionHistory(): void {
+    this.io.output("--- Action history ---");
+    if (this.actionHistory.length === 0) {
+      this.io.output("No actions recorded yet.");
+      this.io.output("--- End action history ---");
+      return;
+    }
+    for (const item of this.actionHistory) {
+      this.io.output(`- ${item}`);
+    }
+    this.io.output("--- End action history ---");
+  }
+
+  private logAction(message: string): void {
+    this.actionHistory.push(`[${new Date().toISOString()}] ${message}`);
   }
 }

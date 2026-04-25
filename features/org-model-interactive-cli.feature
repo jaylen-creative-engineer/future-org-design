@@ -17,3 +17,24 @@ Feature: Interactive org model CLI flow
     And the interactive inspection for scope "acme" shows 1 baseline
     And the interactive inspection for scope "acme" shows 1 scenario
     And the interactive inspection for scope "acme" shows 1 recommendation
+
+  @S-CLI-02
+  Scenario: Use flow map and guided walkthrough to validate navigation behavior
+    Given an interactive CLI session backed by in-memory persistence
+    And the operator creates scope "acme" named "Acme Corp"
+    When the operator views the validation flow map
+    And the operator runs the guided walkthrough with:
+      | unitId     | walkthrough-unit |
+      | unitName   | Walkthrough Unit |
+      | baselineId | baseline-guided  |
+      | scenarioId | scenario-guided  |
+      | rationale  | Guided rationale |
+      | confidence | 0.7              |
+    And the operator shows action history
+    Then the interactive output includes "Validation flow map"
+    And the interactive output includes "Completed guided walkthrough"
+    And the interactive output includes "Recommendation created for scenario"
+    And the interactive inspection for scope "acme" shows 1 units
+    And the interactive inspection for scope "acme" shows 1 baseline
+    And the interactive inspection for scope "acme" shows 1 scenario
+    And the interactive inspection for scope "acme" shows 1 recommendation

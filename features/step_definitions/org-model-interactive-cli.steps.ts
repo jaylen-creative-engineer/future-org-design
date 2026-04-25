@@ -1,4 +1,4 @@
-import { Given, Then, When } from "@cucumber/cucumber";
+import { Given, Then, When, type DataTable } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import { OrgModelWorld } from "../support/world.js";
 import { InteractiveOrgCliSession, type InteractiveIo } from "../../src/org-model/interactive-session.js";
@@ -132,6 +132,47 @@ When(
   }
 );
 
+When("the operator views the validation flow map", async function (this: OrgModelWorld) {
+  const script = new ScriptedInteractiveIo(this);
+  script.enqueueChoose("View validation flow map");
+  script.enqueueChoose("Exit");
+  await runScriptedSession(this, script);
+});
+
+When("the operator runs the guided walkthrough with:", async function (this: OrgModelWorld, table: DataTable) {
+  const rows = table.rowsHash();
+  const unitId = rows.unitId;
+  const unitName = rows.unitName;
+  const baselineId = rows.baselineId;
+  const scenarioId = rows.scenarioId;
+  const rationale = rows.rationale;
+  const confidence = rows.confidence;
+  assert.ok(unitId && unitName && baselineId && scenarioId && rationale && confidence, "Guided walkthrough table is incomplete");
+
+  const script = new ScriptedInteractiveIo(this);
+  enqueueScopeSelection(script);
+  script.enqueueChoose("Run guided walkthrough (baseline -> scenario -> recommendation)");
+  script.enqueueInput(unitId);
+  script.enqueueInput(unitName);
+  script.enqueueInput(baselineId);
+  script.enqueueChoose(baselineId);
+  script.enqueueInput(scenarioId);
+  script.enqueueChoose(baselineId);
+  script.enqueueChoose(scenarioId);
+  script.enqueueInput(rationale);
+  script.enqueueInput(confidence);
+  script.enqueueChoose("Exit");
+  await runScriptedSession(this, script);
+});
+
+When("the operator shows action history", async function (this: OrgModelWorld) {
+  const script = new ScriptedInteractiveIo(this);
+  enqueueScopeSelection(script);
+  script.enqueueChoose("Show action history");
+  script.enqueueChoose("Exit");
+  await runScriptedSession(this, script);
+});
+
 Then(
   "the interactive inspection for scope {string} shows {int} units",
   async function (this: OrgModelWorld, scopeId: string, expectedCount: number) {
@@ -139,6 +180,13 @@ Then(
     assert.equal(units.length, expectedCount);
   }
 );
+
+Then("the interactive output includes {string}", function (this: OrgModelWorld, expectedMessage: string) {
+  assert.ok(
+    this.interactiveMessages.some((message) => message.includes(expectedMessage)),
+    `Expected interactive output to include "${expectedMessage}"`
+  );
+});
 
 Then(
   "the interactive inspection for scope {string} shows {int} baseline",
