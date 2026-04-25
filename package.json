@@ -18,11 +18,13 @@
     "test": "vitest run && npm run graph:check",
     "test:watch": "vitest",
     "bdd": "NODE_OPTIONS='--import tsx' cucumber-js --config cucumber.mjs",
-    "bdd:org-model": "npm run bdd -- --tags '@org-model-intelligence'"
+    "bdd:org-model": "npm run bdd -- --tags '@org-model-intelligence'",
+    "org-model:cli": "tsx src/org-model/org-model-cli.ts"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.7.0",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "lat.md": "^0.11.0",
@@ -31,9 +33,12 @@
     "vitest": "^3.0.0"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "next": "^16.2.3",
+    "pg": "^8.20.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.3.6"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.60.1"
