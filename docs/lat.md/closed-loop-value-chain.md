@@ -33,7 +33,7 @@ This snapshot records shipped scenario-intelligence and recommendation-intellige
 - Org model intelligence (structure + ingest) is at full planned unit coverage in `features/org-model-intelligence.feature` (`@ORG-01` through `@ORG-06`, `@DATA-01` through `@DATA-05`, including ingest-time cycle detection and unknown-parent rejection).
 - Scenario modeling now has an executable baseline fork + structural edit slice in `features/org-model-intelligence.feature` (`@SCN-01`, `@SCN-02`, `@S-SCN-01`).
 - Recommendation intelligence now has executable artifact generation + review workflow coverage in `features/org-model-intelligence.feature` (`@REC-01` to `@REC-05`, `@S-REC-01` to `@S-REC-04`).
-- Interactive experience intelligence now includes a guided CLI prototype in `src/org-model/org-model-cli.ts` with executable behavior in `features/org-model-interactive-cli.feature` (`@S-CLI-01`), covering navigation, prompt sequencing, and end-to-end creation of scope, units, reporting lines, baselines, scenarios, and recommendations.
+- Interactive experience intelligence now includes a split-entry validation CLI in `scripts/cli/entry.ts` (`entry.ts` + `batch.ts` + `interactive.ts`) with executable behavior in `features/org-model-interactive-cli.feature` (`@S-CLI-01`, `@S-CLI-02`), covering interactive navigation, non-TTY-safe smoke/demo paths, prompt sequencing, and end-to-end creation of scope, units, reporting lines, baselines, scenarios, and recommendations.
 - Implemented behavior:
   - scenario copies are created from immutable baselines
   - scenario state transitions follow `draft -> ready -> archived`

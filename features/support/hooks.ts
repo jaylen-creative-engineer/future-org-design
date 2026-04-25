@@ -9,6 +9,7 @@ Before(function (this: OrgModelWorld) {
   this.lastRecommendationArtifact = undefined;
   this.previousRecommendationArtifact = undefined;
   this.interactiveMessages = [];
+  this.cliOutput = "";
   this.interactiveSession = undefined;
   this.interactiveIo = undefined;
 });

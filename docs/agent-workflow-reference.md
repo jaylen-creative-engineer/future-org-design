@@ -101,3 +101,48 @@ Output requirements:
 - Document any new assumptions and follow-up tasks.
 ```
 
+## Interactive validation CLI pattern (for agent reuse)
+
+Use this project pattern when adding validation CLIs for behavior/workflow checks.
+
+### Why
+
+- Reuse the same application/domain call paths that APIs and tests use.
+- Provide an onboarding + validation surface for integration-like scenarios.
+- Support both interactive TTY sessions and non-interactive CI/IDE execution.
+
+### Required structure (split entry)
+
+- `scripts/cli/entry.ts`
+  - Minimal imports only.
+  - Loads dotenv (`.env`, then `.env.local`, quiet mode).
+  - Parses flags (`--help`, `--smoke`, `--demo`, `--mode=...`).
+  - Dynamically imports `batch.ts` for non-interactive flags.
+  - Refuses interactive mode when `!process.stdin.isTTY` with clear guidance.
+  - Dynamically imports `interactive.ts` only for TTY interactive runs.
+- `scripts/cli/batch.ts`
+  - No static Inquirer/zx imports.
+  - Implements:
+    - `runHelp()`
+    - `runSmoke()` (fast create/read wiring check)
+    - `runGuidedDemoBatch()` (longer scripted path with JSON envelopes)
+- `scripts/cli/interactive.ts`
+  - Owns prompt dependencies (`@inquirer/prompts`) and optional tooling (`zx`).
+  - Exposes `startInteractive()`.
+  - Presents top-level menu + validation workflows.
+
+### Runtime conventions
+
+- Script form:
+  - `node ./node_modules/tsx/dist/cli.mjs ./scripts/cli/entry.ts`
+- Avoid:
+  - `NODE_OPTIONS=--import tsx` when launching with `tsx/dist/cli.mjs` (prevents double loader registration).
+- Prefer full JSON envelopes for CLI output (`ok`, `data`, `error`) to align with API/test assertions.
+
+### Flag contract
+
+- `--help`: usage + TTY guidance + loader warning.
+- `--smoke`: non-TTY safe fast validation.
+- `--demo`: non-TTY safe guided scripted flow.
+- no flags: TTY-only interactive menus.
+

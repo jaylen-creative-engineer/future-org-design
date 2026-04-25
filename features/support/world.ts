@@ -16,6 +16,7 @@ export class OrgModelWorld extends World {
   lastRecommendationArtifact?: RecommendationArtifact;
   previousRecommendationArtifact?: RecommendationArtifact;
   interactiveMessages: string[] = [];
+  cliOutput = "";
   interactiveSession?: InteractiveOrgCliSession;
   interactiveIo?: InteractiveIo;
 

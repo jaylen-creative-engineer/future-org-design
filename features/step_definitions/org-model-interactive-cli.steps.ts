@@ -1,5 +1,6 @@
 import { Given, Then, When, type DataTable } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
+import { spawnSync } from "node:child_process";
 import { OrgModelWorld } from "../support/world.js";
 import { InteractiveOrgCliSession, type InteractiveIo } from "../../src/org-model/interactive-session.js";
 
@@ -51,6 +52,23 @@ Given("an interactive CLI session backed by in-memory persistence", function (th
   this.interactiveSession = undefined;
   this.interactiveIo = undefined;
 });
+
+function runCliForTest(args: readonly string[]): { status: number | null; stdout: string; stderr: string } {
+  const result = spawnSync(
+    "node",
+    ["./node_modules/tsx/dist/cli.mjs", "./scripts/cli/entry.ts", ...args],
+    {
+      cwd: process.cwd(),
+      env: { ...process.env },
+      encoding: "utf8"
+    }
+  );
+  return {
+    status: result.status,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? ""
+  };
+}
 
 When(
   "the operator creates scope {string} named {string}",
@@ -171,6 +189,62 @@ When("the operator shows action history", async function (this: OrgModelWorld) {
   script.enqueueChoose("Show action history");
   script.enqueueChoose("Exit");
   await runScriptedSession(this, script);
+});
+
+When("the operator runs CLI help in non-interactive mode", function (this: OrgModelWorld) {
+  const result = runCliForTest(["--help", "--mode=memory"]);
+  this.interactiveMessages.push(result.stdout);
+  this.interactiveMessages.push(result.stderr);
+  assert.equal(result.status, 0);
+});
+
+When("the operator runs CLI smoke in memory mode", function (this: OrgModelWorld) {
+  const result = runCliForTest(["--smoke", "--mode=memory"]);
+  this.interactiveMessages.push(result.stdout);
+  this.interactiveMessages.push(result.stderr);
+  assert.equal(result.status, 0);
+});
+
+When("the operator runs CLI demo in memory mode", function (this: OrgModelWorld) {
+  const result = runCliForTest(["--demo", "--mode=memory"]);
+  this.interactiveMessages.push(result.stdout);
+  this.interactiveMessages.push(result.stderr);
+  assert.equal(result.status, 0);
+});
+
+Given("CLI batch mode is configured for {string}", function (this: OrgModelWorld, mode: string) {
+  this.cliOutput = "";
+  this.interactiveMessages = [];
+  if (mode !== "memory" && mode !== "postgres") {
+    throw new Error(`Unsupported test mode ${mode}`);
+  }
+  this.interactiveMessages.push(`mode:${mode}`);
+});
+
+When("CLI smoke validation runs", function (this: OrgModelWorld) {
+  const modeMessage = this.interactiveMessages.find((message) => message.startsWith("mode:")) ?? "mode:memory";
+  const mode = modeMessage.replace("mode:", "");
+  const result = runCliForTest(["--smoke", `--mode=${mode}`]);
+  assert.equal(result.status, 0, `smoke command failed: ${result.stderr}`);
+  this.cliOutput = result.stdout;
+});
+
+When("CLI guided demo batch runs", function (this: OrgModelWorld) {
+  const modeMessage = this.interactiveMessages.find((message) => message.startsWith("mode:")) ?? "mode:memory";
+  const mode = modeMessage.replace("mode:", "");
+  const result = runCliForTest(["--demo", `--mode=${mode}`]);
+  assert.equal(result.status, 0, `demo command failed: ${result.stderr}`);
+  this.cliOutput = result.stdout;
+});
+
+Then("the CLI envelope result is ok", function (this: OrgModelWorld) {
+  const parsed = JSON.parse(this.cliOutput) as { ok?: boolean };
+  assert.equal(parsed.ok, true);
+});
+
+Then("the CLI envelope includes key {string}", function (this: OrgModelWorld, key: string) {
+  const parsed = JSON.parse(this.cliOutput) as { data?: Record<string, unknown> };
+  assert.ok(parsed.data && key in parsed.data, `Expected CLI envelope data to include key ${key}`);
 });
 
 Then(

@@ -18,6 +18,16 @@ Feature: Interactive org model CLI flow
     And the interactive inspection for scope "acme" shows 1 scenario
     And the interactive inspection for scope "acme" shows 1 recommendation
 
+  @S-CLI-03
+  Scenario: Non-interactive smoke and demo commands print validation envelopes
+    Given CLI batch mode is configured for "memory"
+    When CLI smoke validation runs
+    Then the CLI envelope result is ok
+    And the CLI envelope includes key "counts"
+    When CLI guided demo batch runs
+    Then the CLI envelope result is ok
+    And the CLI envelope includes key "latestRecommendation"
+
   @S-CLI-02
   Scenario: Use flow map and guided walkthrough to validate navigation behavior
     Given an interactive CLI session backed by in-memory persistence
