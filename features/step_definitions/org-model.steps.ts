@@ -140,7 +140,24 @@ When(
 When(
   "subtree rooted at {string} is moved under {string} in scenario {string}",
   function (this: OrgModelWorld, unitId: string, nextParentId: string, scenarioId: string) {
-    this.driver.moveScenarioSubtree(scenarioId, unitId, nextParentId);
+    try {
+      this.driver.moveScenarioSubtree(scenarioId, unitId, nextParentId);
+      this.lastError = undefined;
+    } catch (error) {
+      this.lastError = error as OrgModelError;
+    }
+  }
+);
+
+When(
+  "subtree move of {string} under {string} is attempted in scenario {string}",
+  function (this: OrgModelWorld, unitId: string, nextParentId: string, scenarioId: string) {
+    try {
+      this.driver.moveScenarioSubtree(scenarioId, unitId, nextParentId);
+      this.lastError = undefined;
+    } catch (error) {
+      this.lastError = error as OrgModelError;
+    }
   }
 );
 
@@ -183,6 +200,114 @@ Then(
     assert.equal(this.driver.baselineParentOf(baselineId, unitId), expectedParentId);
   }
 );
+
+When(
+  "scenario {string} is scored against baseline {string}",
+  function (this: OrgModelWorld, scenarioId: string, baselineId: string) {
+    void baselineId;
+    this.driver.scoreScenarioAgainstBaseline(scenarioId);
+  }
+);
+
+When(
+  "scenario score is computed for baseline {string} and scenario {string}",
+  function (this: OrgModelWorld, baselineId: string, scenarioId: string) {
+    void baselineId;
+    this.driver.scoreScenarioAgainstBaseline(scenarioId);
+  }
+);
+
+Then(
+  "scenario score for {string} has overall error {float} and normalized score {float}",
+  function (this: OrgModelWorld, scenarioId: string, expectedOverallError: number, expectedNormalizedScore: number) {
+    const score = this.driver.scoreScenarioAgainstBaseline(scenarioId);
+    assert.equal(score.overallError, expectedOverallError);
+    assert.equal(score.normalizedScore, expectedNormalizedScore);
+  }
+);
+
+Then(
+  "scenario score for {string} has contributor {string}",
+  function (this: OrgModelWorld, scenarioId: string, contributor: string) {
+    const score = this.driver.scoreScenarioAgainstBaseline(scenarioId);
+    assert.ok(score.contributors.includes(contributor));
+  }
+);
+
+Then("scenario score overall error is {int}", function (this: OrgModelWorld, expectedOverallError: number) {
+  const score = this.driver.getScenarioScore(this.lastRecommendationRequest?.scenarioId ?? "scenario-score-a");
+  assert.equal(score.overallError, expectedOverallError);
+});
+
+Then("scenario score overall error is greater than {int}", function (this: OrgModelWorld, threshold: number) {
+  const score = this.driver.getScenarioScore(this.lastRecommendationRequest?.scenarioId ?? "scenario-score-b");
+  assert.ok(score.overallError > threshold);
+});
+
+Then("scenario score normalized score is {int}", function (this: OrgModelWorld, expectedNormalizedScore: number) {
+  const score = this.driver.getScenarioScore(this.lastRecommendationRequest?.scenarioId ?? "scenario-score-a");
+  assert.equal(score.normalizedScore, expectedNormalizedScore);
+});
+
+Then("scenario score includes contributor {string}", function (this: OrgModelWorld, contributor: string) {
+  const scores = ["scenario-score-a", "scenario-score-b"]
+    .map((scenarioId) => {
+      try {
+        return this.driver.getScenarioScore(scenarioId);
+      } catch {
+        return undefined;
+      }
+    })
+    .filter((score): score is NonNullable<typeof score> => score !== undefined);
+  assert.ok(scores.some((score) => score.contributors.includes(contributor)));
+});
+
+When(
+  "scenarios are ranked against baseline {string}",
+  function (this: OrgModelWorld, baselineId: string) {
+    this.driver.compareScenariosAgainstBaseline(baselineId, this.driver.listScenarioIdsForBaseline(baselineId));
+  }
+);
+
+When(
+  "scenarios {string} and {string} are ranked against baseline {string}",
+  function (this: OrgModelWorld, scenarioA: string, scenarioB: string, baselineId: string) {
+    this.driver.compareScenariosAgainstBaseline(baselineId, [scenarioA, scenarioB]);
+  }
+);
+
+Then(
+  "scenario rank for baseline {string} is:",
+  function (this: OrgModelWorld, baselineId: string, expectedRanksCsv: string) {
+    const expectedRanks = expectedRanksCsv.split(",").map((item) => item.trim());
+    const ranked = this.driver.compareScenariosAgainstBaseline(
+      baselineId,
+      this.driver.listScenarioIdsForBaseline(baselineId)
+    );
+    assert.deepEqual(ranked, expectedRanks);
+  }
+);
+
+Then("scenario {string} ranks before {string}", function (this: OrgModelWorld, earlier: string, later: string) {
+  const rankings = this.driver
+    .getScenarioRankings("baseline-rank-v1")
+    .map((entry: { scenarioId: string }) => entry.scenarioId);
+  assert.ok(rankings.indexOf(earlier) !== -1 && rankings.indexOf(later) !== -1);
+  assert.ok(rankings.indexOf(earlier) < rankings.indexOf(later));
+});
+
+When("scenario {string} archive is attempted", function (this: OrgModelWorld, scenarioId: string) {
+  try {
+    this.driver.archiveScenario(scenarioId);
+    this.lastError = undefined;
+  } catch (error) {
+    this.lastError = error as OrgModelError;
+  }
+});
+
+When("scenario {string} is reset to baseline", function (this: OrgModelWorld, scenarioId: string) {
+  this.driver.resetScenarioToBaseline(scenarioId);
+});
 
 Given("a valid ingest payload:", function (this: OrgModelWorld, docString: string) {
   this.lastIngestPayload = parsePayload(docString);

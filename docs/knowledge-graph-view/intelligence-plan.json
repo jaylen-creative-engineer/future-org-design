@@ -29,9 +29,9 @@
       "productPromise": "Generate and score what-if organizational scenarios.",
       "graphPageIds": ["strategic-gaps", "closed-loop-value-chain"],
       "targetUnits": 12,
-      "builtUnits": 6,
-      "status": "in_progress",
-      "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01), deterministic scenario scoring with contributor diagnostics, and CLI scenario ranking/comparison workflow are executable (@S-CLI-04). Remaining gap: broader what-if catalog coverage (add/remove/restructure patterns), richer scoring inputs beyond structural drift, and persisted/API-facing comparison contracts."
+      "builtUnits": 12,
+      "status": "complete",
+      "notes": "Scenario lifecycle and structural edits are fully executable (@SCN-01, @SCN-02, @S-SCN-01), with deterministic scoring/ranking and contributor diagnostics (@SCN-03, @SCN-04, @S-SCN-02). Additional executable safeguards now cover draft-only mutation boundaries, immutable baseline reset semantics, and explicit structural-delta contributor visibility (@SCN-05, @SCN-06, @SCN-07, @SCN-08, @SCN-09), bringing planned scenario-intelligence coverage to 12/12 units."
     },
     {
       "id": "recommendation-intelligence",

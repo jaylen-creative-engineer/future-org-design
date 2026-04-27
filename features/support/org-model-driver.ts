@@ -26,6 +26,12 @@ export interface ScenarioView {
 
 export type ScenarioState = "draft" | "ready" | "archived";
 
+export interface ScenarioScore {
+  overallError: number;
+  normalizedScore: number;
+  contributors: string[];
+}
+
 export interface RecommendationConstraint {
   type: string;
   targetEntityId: string;
@@ -167,6 +173,8 @@ export class InMemoryOrgModelDriver {
   private readonly scenarios = new Map<string, ScenarioView>();
   private readonly recommendations = new Map<string, RecommendationArtifact>();
   private readonly recommendationIdempotencyIndex = new Map<string, string>();
+  private readonly scenarioScores = new Map<string, ScenarioScore>();
+  private readonly scenarioRankingsByBaseline = new Map<string, string[]>();
   private recommendationCounter = 0;
   private recommendationAdapter: AdkRecommendationAdapter = new DeterministicAdkRecommendationAdapter();
 
@@ -267,6 +275,37 @@ export class InMemoryOrgModelDriver {
     scenario.units.set(unitId, { id: unitId, name });
   }
 
+  removeUnitFromScenario(scenarioId: string, unitId: string): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    if (scenario.state !== "draft") {
+      throw new OrgModelError("SCENARIO_NOT_DRAFT", "Only draft scenarios can be edited");
+    }
+    scenario.units.delete(unitId);
+    for (const [id, unit] of scenario.units.entries()) {
+      if (unit.parentId === unitId) {
+        scenario.units.set(id, { ...unit, parentId: undefined });
+      }
+    }
+  }
+
+  resetScenarioToBaseline(scenarioId: string): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    if (scenario.state !== "draft") {
+      throw new OrgModelError("SCENARIO_NOT_DRAFT", "Only draft scenarios can be edited");
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+    scenario.units = cloneUnits(baseline.units);
+  }
+
   moveScenarioSubtree(scenarioId: string, unitId: string, nextParentId: string): void {
     const scenario = this.scenarios.get(scenarioId);
     if (!scenario) {
@@ -339,6 +378,117 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
     }
     return baseline.units.get(unitId)?.parentId;
+  }
+
+  scoreScenarioAgainstBaseline(scenarioId: string, baselineId?: string): ScenarioScore {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    if (baselineId && scenario.baselineId !== baselineId) {
+      throw new OrgModelError("BASELINE_SCENARIO_MISMATCH", `Scenario ${scenarioId} does not belong to ${baselineId}`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+
+    const baselineIds = new Set(baseline.units.keys());
+    const scenarioIds = new Set(scenario.units.keys());
+    const commonIds = [...scenarioIds].filter((id) => baselineIds.has(id));
+
+    let reparentedCount = 0;
+    for (const unitId of commonIds) {
+      if (scenario.units.get(unitId)?.parentId !== baseline.units.get(unitId)?.parentId) {
+        reparentedCount += 1;
+      }
+    }
+
+    const addedCount = [...scenarioIds].filter((id) => !baselineIds.has(id)).length;
+    const removedCount = [...baselineIds].filter((id) => !scenarioIds.has(id)).length;
+
+    const overallError = Number((addedCount + removedCount + reparentedCount).toFixed(3));
+    const normalizedScore = Number((1 / (1 + overallError)).toFixed(3));
+    const contributors: string[] = [];
+    if (reparentedCount > 0) {
+      contributors.push(`parent_link_drift:${reparentedCount}`);
+    }
+    if (addedCount > 0) {
+      contributors.push(`added:${addedCount}`);
+    }
+    if (removedCount > 0) {
+      contributors.push(`removed:${removedCount}`);
+    }
+    if (contributors.length === 0) {
+      contributors.push("no_structural_drift");
+    }
+
+    const score = { overallError, normalizedScore, contributors };
+    this.scenarioScores.set(scenarioId, score);
+    return score;
+  }
+
+  compareScenariosAgainstBaseline(baselineId: string, scenarioIds: string[]): string[] {
+    const baseline = this.baselines.get(baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
+    }
+    const candidates = scenarioIds.map((scenarioId) => {
+      const scenario = this.scenarios.get(scenarioId);
+      if (!scenario) {
+        throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+      }
+      if (scenario.baselineId !== baselineId) {
+        throw new OrgModelError("BASELINE_SCENARIO_MISMATCH", `Scenario ${scenarioId} does not belong to ${baselineId}`);
+      }
+      return { scenarioId, score: this.scoreScenarioAgainstBaseline(scenarioId) };
+    });
+
+    candidates.sort((a, b) => {
+      const normalizedDelta = b.score.normalizedScore - a.score.normalizedScore;
+      if (normalizedDelta !== 0) {
+        return normalizedDelta;
+      }
+      const errorDelta = a.score.overallError - b.score.overallError;
+      if (errorDelta !== 0) {
+        return errorDelta;
+      }
+      return a.scenarioId.localeCompare(b.scenarioId);
+    });
+    const ranked = candidates.map((entry) => entry.scenarioId);
+    this.scenarioRankingsByBaseline.set(baselineId, ranked);
+    return ranked;
+  }
+
+  rankScenariosForBaseline(baselineId: string): string[] {
+    const scenarioIds = [...this.scenarios.values()]
+      .filter((scenario) => scenario.baselineId === baselineId)
+      .map((scenario) => scenario.scenarioId);
+    return this.compareScenariosAgainstBaseline(baselineId, scenarioIds);
+  }
+
+  getScenarioScore(scenarioId: string): ScenarioScore {
+    const score = this.scenarioScores.get(scenarioId);
+    if (!score) {
+      throw new OrgModelError("SCENARIO_SCORE_NOT_FOUND", `Scenario ${scenarioId} has not been scored`);
+    }
+    return {
+      overallError: score.overallError,
+      normalizedScore: score.normalizedScore,
+      contributors: [...score.contributors]
+    };
+  }
+
+  getScenarioRankings(baselineId: string): Array<{ scenarioId: string }> {
+    const rankings = this.scenarioRankingsByBaseline.get(baselineId) ?? [];
+    return rankings.map((scenarioId) => ({ scenarioId }));
+  }
+
+  listScenarioIdsForBaseline(baselineId: string): string[] {
+    return [...this.scenarios.values()]
+      .filter((scenario) => scenario.baselineId === baselineId)
+      .map((scenario) => scenario.scenarioId)
+      .sort((a, b) => a.localeCompare(b));
   }
 
   useRecommendationFixture(fixtureId: string): void {
