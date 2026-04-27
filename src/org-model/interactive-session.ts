@@ -294,7 +294,13 @@ export class InteractiveOrgCliSession {
         };
       })
     );
-    scored.sort((a, b) => b.score.normalizedScore - a.score.normalizedScore);
+    scored.sort((a, b) => {
+      const scoreDelta = b.score.normalizedScore - a.score.normalizedScore;
+      if (scoreDelta !== 0) {
+        return scoreDelta;
+      }
+      return a.scenarioId.localeCompare(b.scenarioId);
+    });
 
     this.io.output(`Scenario comparison ranking for baseline ${baselineId}`);
     for (const [index, entry] of scored.entries()) {
