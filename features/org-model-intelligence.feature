@@ -149,6 +149,56 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+    @SCN-03 @S-SCN-02
+    Scenario: Scenario structural score is zero when no drift exists
+      Given scope "acme" has baseline "baseline-score-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-score-a" is created from baseline "baseline-score-v1"
+      And scenario score is computed for baseline "baseline-score-v1" and scenario "scenario-score-a"
+      Then scenario score overall error is 0
+      And scenario score normalized score is 1
+      And scenario score includes contributor "no_structural_drift"
+
+    @SCN-03 @SCN-04 @S-SCN-03
+    Scenario: Scenario scoring detects parent-link drift after reparent
+      Given scope "acme" has baseline "baseline-score-v2" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-score-b" is created from baseline "baseline-score-v2"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-score-b"
+      And scenario score is computed for baseline "baseline-score-v2" and scenario "scenario-score-b"
+      Then scenario score overall error is greater than 0
+      And scenario score includes contributor "parent_link_drift:1"
+
+    @SCN-05 @S-SCN-04
+    Scenario: Scenario comparison ranks lower-error scenario first
+      Given scope "acme" has baseline "baseline-rank-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-rank-a" is created from baseline "baseline-rank-v1"
+      And scenario "scenario-rank-b" is created from baseline "baseline-rank-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-rank-b"
+      And scenarios "scenario-rank-a" and "scenario-rank-b" are ranked against baseline "baseline-rank-v1"
+      Then scenario "scenario-rank-a" ranks before "scenario-rank-b"
+
+    @SCN-06 @S-SCN-05
+    Scenario: Scenario state transition rejects archival from draft
+      Given scope "acme" has baseline "baseline-state-v1" with unit "engineering"
+      When scenario "scenario-state-a" is created from baseline "baseline-state-v1"
+      And scenario "scenario-state-a" archive is attempted
+      Then the operation fails with error code "INVALID_SCENARIO_STATE_TRANSITION"
+
+    @SCN-07 @S-SCN-06
+    Scenario: Scenario state transition rejects edits after ready
+      Given scope "acme" has baseline "baseline-state-v2" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-state-b" is created from baseline "baseline-state-v2"
+      And scenario "scenario-state-b" is marked ready
+      And subtree move of "platform" under "ops" is attempted in scenario "scenario-state-b"
+      Then the operation fails with error code "SCENARIO_NOT_DRAFT"
+
+    @SCN-08 @S-SCN-07
+    Scenario: Scenario can be reset to baseline snapshot
+      Given scope "acme" has baseline "baseline-reset-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      When scenario "scenario-reset-a" is created from baseline "baseline-reset-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-reset-a"
+      And scenario "scenario-reset-a" is reset to baseline
+      Then scenario "scenario-reset-a" unit "platform" reports to "engineering"
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01

@@ -150,6 +150,66 @@ When(
   }
 );
 
+When(
+  "the operator scores scenario {string} against baseline {string}",
+  async function (this: OrgModelWorld, scenarioId: string, baselineId: string) {
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Score scenario vs baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueChoose(scenarioId);
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
+When(
+  "the operator compares scenarios against baseline {string}:",
+  async function (this: OrgModelWorld, baselineId: string, table: DataTable) {
+    const scenarioRows = table.hashes() as Array<{ scenarioId?: string }>;
+    const scenarioIds = scenarioRows
+      .map((row) => row.scenarioId?.trim())
+      .filter((value): value is string => Boolean(value));
+    assert.ok(scenarioIds.length >= 2, "Comparison requires at least two scenario ids");
+
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Compare scenarios against baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueInput(scenarioIds.join(","));
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
+When(
+  "the operator compares all scenarios against baseline {string}",
+  async function (this: OrgModelWorld, baselineId: string) {
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Compare scenarios against baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueInput("all");
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
+When(
+  "the operator compares scenarios {string} and {string} against baseline {string}",
+  async function (this: OrgModelWorld, scenarioA: string, scenarioB: string, baselineId: string) {
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Compare scenarios vs baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueInput(scenarioA);
+    script.enqueueInput(scenarioB);
+    script.enqueueInput("done");
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
 When("the operator views the validation flow map", async function (this: OrgModelWorld) {
   const script = new ScriptedInteractiveIo(this);
   script.enqueueChoose("View validation flow map");
@@ -175,6 +235,8 @@ When("the operator runs the guided walkthrough with:", async function (this: Org
   script.enqueueInput(baselineId);
   script.enqueueChoose(baselineId);
   script.enqueueInput(scenarioId);
+  script.enqueueChoose(baselineId);
+  script.enqueueChoose(scenarioId);
   script.enqueueChoose(baselineId);
   script.enqueueChoose(scenarioId);
   script.enqueueInput(rationale);

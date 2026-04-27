@@ -270,6 +270,54 @@ export class PostgresOrgModelRepository implements OrgModelRepository {
     return result.rows;
   }
 
+  async getBaselineUnits(scopeId: string, baselineId: string): Promise<UnitRecord[]> {
+    const result = await this.pool.query<{ snapshot_json: UnitRecord[] }>(
+      `
+      select snapshot_json
+      from org_model.baselines
+      where scope_id = $1 and baseline_id = $2
+      `,
+      [scopeId, baselineId]
+    );
+    const snapshot = result.rows[0]?.snapshot_json;
+    if (!snapshot) {
+      throw new OrgPersistenceError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
+    }
+    return snapshot.map((unit) => ({ ...unit }));
+  }
+
+  async getScenarioUnits(scopeId: string, scenarioId: string): Promise<UnitRecord[]> {
+    const scenarioResult = await this.pool.query<{ present: boolean }>(
+      `
+      select exists(
+        select 1 from org_model.scenarios where scope_id = $1 and scenario_id = $2
+      ) as present
+      `,
+      [scopeId, scenarioId]
+    );
+    if (!scenarioResult.rows[0]?.present) {
+      throw new OrgPersistenceError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+
+    const result = await this.pool.query<UnitRecord>(
+      `
+      select
+        s.scope_id as "scopeId",
+        su.unit_id as "unitId",
+        su.name,
+        su.parent_id as "parentId",
+        su.created_at::text as "createdAt"
+      from org_model.scenario_units su
+      join org_model.scenarios s
+        on s.scenario_id = su.scenario_id
+      where s.scope_id = $1 and s.scenario_id = $2
+      order by su.unit_id asc
+      `,
+      [scopeId, scenarioId]
+    );
+    return result.rows;
+  }
+
   async createRecommendation(
     scopeId: string,
     baselineId: string,

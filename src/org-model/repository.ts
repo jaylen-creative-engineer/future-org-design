@@ -62,6 +62,8 @@ export interface OrgModelRepository {
   listBaselines(scopeId: string): Promise<BaselineRecord[]>;
   createScenarioFromBaseline(scopeId: string, baselineId: string, scenarioId: string): Promise<void>;
   listScenarios(scopeId: string): Promise<ScenarioRecord[]>;
+  getBaselineUnits(scopeId: string, baselineId: string): Promise<UnitRecord[]>;
+  getScenarioUnits(scopeId: string, scenarioId: string): Promise<UnitRecord[]>;
   createRecommendation(
     scopeId: string,
     baselineId: string,
