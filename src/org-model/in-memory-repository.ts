@@ -162,6 +162,26 @@ export class InMemoryOrgModelRepository implements OrgModelRepository {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
+  async getBaselineUnits(scopeId: string, baselineId: string): Promise<UnitRecord[]> {
+    const baseline = this.baselines.get(baselineId);
+    if (!baseline || baseline.scopeId !== scopeId) {
+      throw new OrgPersistenceError("BASELINE_NOT_FOUND", `Baseline ${baselineId} does not exist`);
+    }
+    return baseline.snapshot.map((unit) => ({ ...unit }));
+  }
+
+  async getScenarioUnits(scopeId: string, scenarioId: string): Promise<UnitRecord[]> {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario || scenario.scopeId !== scopeId) {
+      throw new OrgPersistenceError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline || baseline.scopeId !== scopeId) {
+      throw new OrgPersistenceError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+    return baseline.snapshot.map((unit) => ({ ...unit }));
+  }
+
   async createRecommendation(
     scopeId: string,
     baselineId: string,

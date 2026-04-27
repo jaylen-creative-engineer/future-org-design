@@ -150,6 +150,19 @@ When(
   }
 );
 
+When(
+  "the operator scores scenario {string} against baseline {string}",
+  async function (this: OrgModelWorld, scenarioId: string, baselineId: string) {
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Score scenario vs baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueChoose(scenarioId);
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
 When("the operator views the validation flow map", async function (this: OrgModelWorld) {
   const script = new ScriptedInteractiveIo(this);
   script.enqueueChoose("View validation flow map");
@@ -175,6 +188,8 @@ When("the operator runs the guided walkthrough with:", async function (this: Org
   script.enqueueInput(baselineId);
   script.enqueueChoose(baselineId);
   script.enqueueInput(scenarioId);
+  script.enqueueChoose(baselineId);
+  script.enqueueChoose(scenarioId);
   script.enqueueChoose(baselineId);
   script.enqueueChoose(scenarioId);
   script.enqueueInput(rationale);

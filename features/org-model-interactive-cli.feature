@@ -12,11 +12,13 @@ Feature: Interactive org model CLI flow
     And the operator links unit "platform" to parent "engineering"
     And the operator creates baseline "baseline-v1"
     And the operator creates scenario "scenario-a" from baseline "baseline-v1"
+    And the operator scores scenario "scenario-a" against baseline "baseline-v1"
     And the operator creates recommendation with rationale "Consolidate platform operations" and confidence 0.8
     Then the interactive inspection for scope "acme" shows 2 units
     And the interactive inspection for scope "acme" shows 1 baseline
     And the interactive inspection for scope "acme" shows 1 scenario
     And the interactive inspection for scope "acme" shows 1 recommendation
+    And the interactive output includes "Scenario score for scenario-a vs baseline-v1"
 
   @S-CLI-03
   Scenario: Non-interactive smoke and demo commands print validation envelopes
@@ -43,6 +45,7 @@ Feature: Interactive org model CLI flow
     And the operator shows action history
     Then the interactive output includes "Validation flow map"
     And the interactive output includes "Completed guided walkthrough"
+    And the interactive output includes "Scenario score for scenario-guided vs baseline-guided"
     And the interactive output includes "Recommendation created for scenario"
     And the interactive inspection for scope "acme" shows 1 units
     And the interactive inspection for scope "acme" shows 1 baseline
