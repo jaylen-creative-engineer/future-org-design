@@ -183,6 +183,19 @@ When(
 );
 
 When(
+  "the operator compares all scenarios against baseline {string}",
+  async function (this: OrgModelWorld, baselineId: string) {
+    const script = new ScriptedInteractiveIo(this);
+    enqueueScopeSelection(script);
+    script.enqueueChoose("Compare scenarios against baseline");
+    script.enqueueChoose(baselineId);
+    script.enqueueInput("all");
+    script.enqueueChoose("Exit");
+    await runScriptedSession(this, script);
+  }
+);
+
+When(
   "the operator compares scenarios {string} and {string} against baseline {string}",
   async function (this: OrgModelWorld, scenarioA: string, scenarioB: string, baselineId: string) {
     const script = new ScriptedInteractiveIo(this);

@@ -299,13 +299,21 @@ export class InteractiveOrgCliSession {
       if (scoreDelta !== 0) {
         return scoreDelta;
       }
+      const errorDelta = a.score.overallError - b.score.overallError;
+      if (errorDelta !== 0) {
+        return errorDelta;
+      }
       return a.scenarioId.localeCompare(b.scenarioId);
     });
 
     this.io.output(`Scenario comparison ranking for baseline ${baselineId}`);
     for (const [index, entry] of scored.entries()) {
+      const topContributors = entry.score.contributors.slice(0, 3).join(", ");
       this.io.output(
         `  ${index + 1}. ${entry.scenarioId} normalized=${entry.score.normalizedScore} error=${entry.score.overallError}`
+      );
+      this.io.output(
+        `     deltas root=${entry.score.subscores.rootCountDrift}, depth=${entry.score.subscores.maxDepthDrift}, span=${entry.score.subscores.spanPressureDrift}; contributors=${topContributors}`
       );
     }
     this.logAction(`Compared ${scored.length} scenarios against baseline ${baselineId}`);

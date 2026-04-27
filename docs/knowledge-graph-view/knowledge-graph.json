@@ -591,7 +591,7 @@
   ],
   "intelligencePlan": {
     "version": "0.1.0",
-    "updatedAt": "2026-04-12",
+    "updatedAt": "2026-04-27",
     "unit": "intelligence capabilities",
     "domains": [
       {
@@ -630,9 +630,9 @@
           "closed-loop-value-chain"
         ],
         "targetUnits": 12,
-        "builtUnits": 3,
+        "builtUnits": 6,
         "status": "in_progress",
-        "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Scoring and broader what-if catalog remain planned."
+        "notes": "Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01), deterministic scenario scoring with contributor diagnostics, and CLI scenario ranking/comparison workflow are executable (@S-CLI-04). Remaining gap: broader what-if catalog coverage (add/remove/restructure patterns), richer scoring inputs beyond structural drift, and persisted/API-facing comparison contracts."
       },
       {
         "id": "recommendation-intelligence",

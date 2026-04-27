@@ -66,13 +66,13 @@
   <h2>Product promise vs build progress</h2>
   <p class="lead">
     This maps product promise domains to logic-graph pages and tracks code-complete intelligence units.
-    Unit: <code>intelligence capabilities</code>. Last update: <code>2026-04-12</code>.
+    Unit: <code>intelligence capabilities</code>. Last update: <code>2026-04-27</code>.
   </p>
   <div class="stats" role="status">
     <span><strong>102</strong> target units</span>
-    <span><strong>30</strong> built units</span>
-    <span><strong>72</strong> remaining units</span>
-    <span><strong>29%</strong> complete</span>
+    <span><strong>33</strong> built units</span>
+    <span><strong>69</strong> remaining units</span>
+    <span><strong>32%</strong> complete</span>
     <span><strong>2/10</strong> domains complete</span>
   </div>
   <h3>Currently available features</h3>
@@ -80,7 +80,7 @@
   <ul class="feature-list">
     <li><strong>Knowledge graph foundation:</strong> Parser, graph build, tests, viewer, public JSON export (knowledge-graph.json v2 embeds intelligence plan), and graph diff (diffKnowledgeGraphs) are complete.</li>
     <li><strong>Org model intelligence:</strong> Twelve executable slices in features/org-model-intelligence.feature (ORG-01 through ORG-06, DATA-01 through DATA-05) covering structure, reporting validation, baseline isolation, ingest normalization, schema and duplicate-key rejection, idempotent re-ingest, unknown parent references, and ingest-time cycle detection; implemented in features/support/org-model-driver.ts. Next.js UI for these flows is not wired yet (app scaffold only).</li>
-    <li><strong>Scenario intelligence:</strong> Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01). Scoring and broader what-if catalog remain planned.</li>
+    <li><strong>Scenario intelligence:</strong> Baseline fork, scenario lifecycle draft→ready→archived, subtree reparenting without mutating baseline (@SCN-01, @SCN-02, @S-SCN-01), deterministic scenario scoring with contributor diagnostics, and CLI scenario ranking/comparison workflow are executable (@S-CLI-04). Remaining gap: broader what-if catalog coverage (add/remove/restructure patterns), richer scoring inputs beyond structural drift, and persisted/API-facing comparison contracts.</li>
     <li><strong>Recommendation intelligence:</strong> Structured artifact generation, deterministic golden fixture, accept/reject review with reviewer metadata (@REC-01 to @REC-05, @S-REC-01 to @S-REC-04). Production ADK integration and richer constraint libraries remain planned.</li>
     <li><strong>Experience workflow intelligence:</strong> Next.js 16 app shell (app/layout.tsx, app/page.tsx) is present; org/scenario/recommendation workflows are not exposed in the UI yet.</li>
   </ul>
@@ -124,9 +124,9 @@
             <td><code>strategic-gaps</code>, <code>closed-loop-value-chain</code></td>
             <td class="num">2/2</td>
             <td class="num">12</td>
-            <td class="num">3</td>
-            <td class="num">9</td>
-            <td class="num">25%</td>
+            <td class="num">6</td>
+            <td class="num">6</td>
+            <td class="num">50%</td>
           </tr>
           <tr>
             <td>Recommendation intelligence</td>
@@ -319,7 +319,7 @@
   p_strategic_gaps -->|"Team Topologies movement"| p_market_and_tam</pre>
   </div>
 
-  <footer>Generated 2026-04-12 · Regenerate: <code>npm run graph:view</code></footer>
+  <footer>Generated 2026-04-27 · Regenerate: <code>npm run graph:view</code></footer>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script>
     mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });

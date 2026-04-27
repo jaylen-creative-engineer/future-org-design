@@ -52,7 +52,7 @@ Feature: Interactive org model CLI flow
     And the interactive inspection for scope "acme" shows 1 scenario
     And the interactive inspection for scope "acme" shows 1 recommendation
 
-  @S-CLI-04 @SCN-04
+  @S-CLI-04 @SCN-04 @SCN-05
   Scenario: Compare and rank multiple scenarios against one baseline
     Given an interactive CLI session backed by in-memory persistence
     When the operator creates scope "acme" named "Acme Corp"
@@ -67,5 +67,6 @@ Feature: Interactive org model CLI flow
       | scenario-1 |
       | scenario-2 |
     Then the interactive output includes "Scenario comparison ranking for baseline baseline-v2"
+    And the interactive output includes "contributors=no_structural_drift"
     And the interactive output includes "1. scenario-1"
     And the interactive output includes "2. scenario-2"
