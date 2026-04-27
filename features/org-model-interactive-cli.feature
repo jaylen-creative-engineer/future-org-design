@@ -51,3 +51,21 @@ Feature: Interactive org model CLI flow
     And the interactive inspection for scope "acme" shows 1 baseline
     And the interactive inspection for scope "acme" shows 1 scenario
     And the interactive inspection for scope "acme" shows 1 recommendation
+
+  @S-CLI-04 @SCN-04
+  Scenario: Compare and rank multiple scenarios against one baseline
+    Given an interactive CLI session backed by in-memory persistence
+    When the operator creates scope "acme" named "Acme Corp"
+    And the operator adds unit "engineering" named "Engineering"
+    And the operator adds unit "platform" named "Platform"
+    And the operator links unit "platform" to parent "engineering"
+    And the operator creates baseline "baseline-v2"
+    And the operator creates scenario "scenario-1" from baseline "baseline-v2"
+    And the operator creates scenario "scenario-2" from baseline "baseline-v2"
+    And the operator compares scenarios against baseline "baseline-v2":
+      | scenarioId |
+      | scenario-1 |
+      | scenario-2 |
+    Then the interactive output includes "Scenario comparison ranking for baseline baseline-v2"
+    And the interactive output includes "1. scenario-1"
+    And the interactive output includes "2. scenario-2"

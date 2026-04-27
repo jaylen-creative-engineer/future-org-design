@@ -38,6 +38,7 @@ export class InteractiveOrgCliSession {
         "Create baseline",
         "Create scenario from baseline",
         "Score scenario vs baseline",
+        "Compare scenarios against baseline",
         "Create recommendation draft",
         "Show action history",
         "Inspect current scope data",
@@ -72,6 +73,9 @@ export class InteractiveOrgCliSession {
           break;
         case "Score scenario vs baseline":
           await this.requireScope(() => this.scoreScenarioAgainstBaseline());
+          break;
+        case "Compare scenarios against baseline":
+          await this.requireScope(() => this.compareScenariosAgainstBaseline());
           break;
         case "Create recommendation draft":
           await this.requireScope(() => this.createRecommendation());
@@ -261,6 +265,46 @@ export class InteractiveOrgCliSession {
     this.logAction(`Scored scenario ${scenarioId} against baseline ${baselineId}`);
   }
 
+  private async compareScenariosAgainstBaseline(): Promise<void> {
+    const baselines = await this.repository.listBaselines(this.currentScopeId as string);
+    if (baselines.length === 0) {
+      this.io.output("Need at least one baseline before comparing scenarios.");
+      return;
+    }
+    const baselineId = await this.io.choose(
+      "Select baseline for scenario comparison",
+      baselines.map((baseline) => baseline.baselineId)
+    );
+
+    const scenarios = (await this.repository.listScenarios(this.currentScopeId as string)).filter(
+      (scenario) => scenario.baselineId === baselineId
+    );
+    if (scenarios.length === 0) {
+      this.io.output(`No scenarios exist for baseline ${baselineId}.`);
+      return;
+    }
+
+    const baselineUnits = await this.repository.getBaselineUnits(this.currentScopeId as string, baselineId);
+    const scored = await Promise.all(
+      scenarios.map(async (scenario) => {
+        const scenarioUnits = await this.repository.getScenarioUnits(this.currentScopeId as string, scenario.scenarioId);
+        return {
+          scenarioId: scenario.scenarioId,
+          score: scoreScenarioFromUnits(baselineUnits, scenarioUnits)
+        };
+      })
+    );
+    scored.sort((a, b) => b.score.normalizedScore - a.score.normalizedScore);
+
+    this.io.output(`Scenario comparison ranking for baseline ${baselineId}`);
+    for (const [index, entry] of scored.entries()) {
+      this.io.output(
+        `  ${index + 1}. ${entry.scenarioId} normalized=${entry.score.normalizedScore} error=${entry.score.overallError}`
+      );
+    }
+    this.logAction(`Compared ${scored.length} scenarios against baseline ${baselineId}`);
+  }
+
   private async inspectScopeData(): Promise<void> {
     const scopeId = this.currentScopeId as string;
     const [units, baselines, scenarios, recommendations] = await Promise.all([
@@ -302,8 +346,9 @@ export class InteractiveOrgCliSession {
     this.io.output("3) Create baseline snapshot");
     this.io.output("4) Fork scenario from baseline");
     this.io.output("5) Score scenario against baseline");
-    this.io.output("6) Draft recommendation");
-    this.io.output("7) Inspect scope data and compare outcomes");
+    this.io.output("6) Compare scenarios against baseline");
+    this.io.output("7) Draft recommendation");
+    this.io.output("8) Inspect scope data and compare outcomes");
     this.io.output("Tip: use action history to review navigation behavior.");
     this.io.output("--- end flow map ---");
   }
