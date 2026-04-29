@@ -5,6 +5,8 @@ import type { IngestPayload } from "./org-model-driver.js";
 import type {
   RecommendationArtifact,
   RecommendationRequest,
+  ScenarioComparisonTable,
+  ScenarioDiff,
   ScenarioScorecard,
   ScenarioScoringRequest
 } from "./org-model-driver.js";
@@ -23,6 +25,8 @@ export class OrgModelWorld extends World {
   lastScenarioScoringRequest?: ScenarioScoringRequest;
   lastScenarioScorecard?: ScenarioScorecard;
   rankedScenarioScorecards: ScenarioScorecard[] = [];
+  lastScenarioDiff?: ScenarioDiff;
+  lastScenarioComparison?: ScenarioComparisonTable;
   interactiveMessages: string[] = [];
   cliOutput = "";
   interactiveSession?: InteractiveOrgCliSession;

@@ -197,6 +197,41 @@ Feature: Org model intelligence requirements
       And scenario "scenario-violation" ready block is true
       And scenario "scenario-violation" state is "draft"
 
+    @SCN-04 @S-SCN-02
+    Scenario: Diff a scenario against baseline with stable change references
+      Given scope "acme" has baseline "baseline-diff-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-diff-a" is created from baseline "baseline-diff-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-diff-a"
+      And unit "innovation" is added to scenario "scenario-diff-a" under parent "platform"
+      And unit "innovation" is removed from scenario "scenario-diff-a"
+      When scenario "scenario-diff-a" is diffed against its baseline
+      Then scenario "scenario-diff-a" diff includes change "reparent_unit" for entity "platform"
+      And scenario "scenario-diff-a" diff reports baseline parent "engineering" and scenario parent "ops" for entity "platform"
+
+    @SCN-06 @S-SCN-05
+    Scenario: Compare scenarios with ranked tabular metrics
+      Given scope "acme" has baseline "baseline-compare-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-compare-a" is created from baseline "baseline-compare-v1"
+      And scenario "scenario-compare-b" is created from baseline "baseline-compare-v1" and unit "innovation" is added to that scenario
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-compare-a"
+      And a scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 2,
+          "weights": {
+            "headcount": 0.5,
+            "spanCompliance": 0.3,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenarios "scenario-compare-a" and "scenario-compare-b" are compared using scenario scoring
+      Then scenario comparison baseline is "baseline-compare-v1"
+      And scenario comparison rank 1 is "scenario-compare-a"
+      And scenario comparison rank 2 is "scenario-compare-b"
+      And scenario comparison includes 2 rows
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01

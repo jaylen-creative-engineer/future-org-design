@@ -75,6 +75,38 @@ export interface ScenarioScorecard {
   readyBlocked: boolean;
 }
 
+export type ScenarioDiffChangeType = "add_unit" | "remove_unit" | "reparent_unit";
+
+export interface ScenarioDiffChange {
+  changeType: ScenarioDiffChangeType;
+  entityId: string;
+  baselineParentId?: string;
+  scenarioParentId?: string;
+}
+
+export interface ScenarioDiff {
+  scenarioId: string;
+  baselineId: string;
+  changes: ScenarioDiffChange[];
+}
+
+export interface ScenarioComparisonRow {
+  rank: number;
+  scenarioId: string;
+  baselineId: string;
+  totalScore: number;
+  headcountDelta: number;
+  spanViolations: number;
+  complexityChangeCount: number;
+  maxDepth: number;
+  violationCodes: string[];
+}
+
+export interface ScenarioComparisonTable {
+  baselineId: string;
+  rows: ScenarioComparisonRow[];
+}
+
 export type SuggestedChangeAction = "reparent_unit" | "add_unit" | "remove_unit";
 
 export interface SuggestedChange {
@@ -202,6 +234,23 @@ function cloneScenarioScorecard(scorecard: ScenarioScorecard): ScenarioScorecard
   };
 }
 
+function cloneScenarioDiff(diff: ScenarioDiff): ScenarioDiff {
+  return {
+    ...diff,
+    changes: diff.changes.map((change) => ({ ...change }))
+  };
+}
+
+function cloneScenarioComparisonTable(table: ScenarioComparisonTable): ScenarioComparisonTable {
+  return {
+    baselineId: table.baselineId,
+    rows: table.rows.map((row) => ({
+      ...row,
+      violationCodes: [...row.violationCodes]
+    }))
+  };
+}
+
 class DeterministicAdkRecommendationAdapter implements AdkRecommendationAdapter {
   constructor(private readonly fixtureId?: string) {}
 
@@ -240,6 +289,8 @@ export class InMemoryOrgModelDriver {
   >();
   private readonly scenarios = new Map<string, ScenarioView>();
   private readonly scenarioScores = new Map<string, ScenarioScorecard>();
+  private readonly scenarioDiffs = new Map<string, ScenarioDiff>();
+  private lastScenarioComparison?: ScenarioComparisonTable;
   private readonly recommendations = new Map<string, RecommendationArtifact>();
   private readonly recommendationIdempotencyIndex = new Map<string, string>();
   private recommendationCounter = 0;
@@ -340,6 +391,26 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
     }
     scenario.units.set(unitId, { id: unitId, name });
+  }
+
+  removeUnitFromScenario(scenarioId: string, unitId: string): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    if (scenario.state !== "draft") {
+      throw new OrgModelError("SCENARIO_NOT_DRAFT", "Only draft scenarios can be edited");
+    }
+    if (!scenario.units.has(unitId)) {
+      throw new OrgModelError("UNIT_NOT_FOUND", `Scenario unit ${unitId} does not exist`);
+    }
+
+    for (const unit of scenario.units.values()) {
+      if (unit.parentId === unitId) {
+        throw new OrgModelError("UNIT_HAS_CHILDREN", `Cannot remove scenario unit ${unitId} with direct reports`);
+      }
+    }
+    scenario.units.delete(unitId);
   }
 
   moveScenarioSubtree(scenarioId: string, unitId: string, nextParentId: string): void {
@@ -498,6 +569,94 @@ export class InMemoryOrgModelDriver {
     return scorecards;
   }
 
+  diffScenarioAgainstBaseline(scenarioId: string): ScenarioDiff {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+
+    const allEntityIds = [...new Set([...baseline.units.keys(), ...scenario.units.keys()])].sort((left, right) =>
+      left.localeCompare(right)
+    );
+    const changes: ScenarioDiffChange[] = [];
+    for (const entityId of allEntityIds) {
+      const baselineUnit = baseline.units.get(entityId);
+      const scenarioUnit = scenario.units.get(entityId);
+      if (baselineUnit && !scenarioUnit) {
+        changes.push({
+          changeType: "remove_unit",
+          entityId,
+          baselineParentId: baselineUnit.parentId
+        });
+        continue;
+      }
+      if (!baselineUnit && scenarioUnit) {
+        changes.push({
+          changeType: "add_unit",
+          entityId,
+          scenarioParentId: scenarioUnit.parentId
+        });
+        continue;
+      }
+      if (baselineUnit && scenarioUnit && baselineUnit.parentId !== scenarioUnit.parentId) {
+        changes.push({
+          changeType: "reparent_unit",
+          entityId,
+          baselineParentId: baselineUnit.parentId,
+          scenarioParentId: scenarioUnit.parentId
+        });
+      }
+    }
+
+    changes.sort((left, right) => {
+      if (left.entityId !== right.entityId) {
+        return left.entityId.localeCompare(right.entityId);
+      }
+      return left.changeType.localeCompare(right.changeType);
+    });
+
+    const diff: ScenarioDiff = {
+      scenarioId,
+      baselineId: scenario.baselineId,
+      changes
+    };
+    this.scenarioDiffs.set(scenarioId, diff);
+    return cloneScenarioDiff(diff);
+  }
+
+  compareScenarios(scenarioIds: string[], request: ScenarioScoringRequest): ScenarioComparisonTable {
+    const scorecards = this.rankScenarios(scenarioIds, request);
+    const baselineIds = new Set(scorecards.map((scorecard) => scorecard.baselineId));
+    if (baselineIds.size !== 1) {
+      throw new OrgModelError("BASELINE_MISMATCH", "Compared scenarios must share the same baseline");
+    }
+    const baselineId = scorecards[0]?.baselineId;
+    if (!baselineId) {
+      throw new OrgModelError("INVALID_COMPARISON_REQUEST", "At least one scenario is required for comparison");
+    }
+
+    const table: ScenarioComparisonTable = {
+      baselineId,
+      rows: scorecards.map((scorecard, index) => ({
+        rank: index + 1,
+        scenarioId: scorecard.scenarioId,
+        baselineId: scorecard.baselineId,
+        totalScore: scorecard.totalScore,
+        headcountDelta: scorecard.headcountDelta,
+        spanViolations: scorecard.spanViolations,
+        complexityChangeCount: scorecard.complexityChangeCount,
+        maxDepth: scorecard.maxDepth,
+        violationCodes: [...scorecard.violationCodes]
+      }))
+    };
+    this.lastScenarioComparison = table;
+    return cloneScenarioComparisonTable(table);
+  }
+
   markScenarioReadyWithScoring(scenarioId: string, request: ScenarioScoringRequest): ScenarioScorecard {
     const scorecard = this.scoreScenario(scenarioId, request);
     if (scorecard.readyBlocked) {
@@ -516,6 +675,21 @@ export class InMemoryOrgModelDriver {
       throw new OrgModelError("SCENARIO_SCORE_NOT_FOUND", `Scenario ${scenarioId} has not been scored`);
     }
     return cloneScenarioScorecard(scorecard);
+  }
+
+  getScenarioDiff(scenarioId: string): ScenarioDiff {
+    const diff = this.scenarioDiffs.get(scenarioId);
+    if (!diff) {
+      throw new OrgModelError("SCENARIO_DIFF_NOT_FOUND", `Scenario ${scenarioId} has not been diffed`);
+    }
+    return cloneScenarioDiff(diff);
+  }
+
+  getLastScenarioComparison(): ScenarioComparisonTable {
+    if (!this.lastScenarioComparison) {
+      throw new OrgModelError("SCENARIO_COMPARISON_NOT_FOUND", "No scenario comparison has been generated");
+    }
+    return cloneScenarioComparisonTable(this.lastScenarioComparison);
   }
 
   getScenarioState(scenarioId: string): ScenarioState {

@@ -154,6 +154,10 @@ When(
   }
 );
 
+When("unit {string} is removed from scenario {string}", function (this: OrgModelWorld, unitId: string, scenarioId: string) {
+  this.driver.removeUnitFromScenario(scenarioId, unitId);
+});
+
 When(
   "subtree rooted at {string} is moved under {string} in scenario {string}",
   function (this: OrgModelWorld, unitId: string, nextParentId: string, scenarioId: string) {
@@ -226,6 +230,24 @@ When(
 );
 
 When(
+  "scenario {string} is diffed against its baseline",
+  function (this: OrgModelWorld, scenarioId: string) {
+    this.lastScenarioDiff = this.driver.diffScenarioAgainstBaseline(scenarioId);
+  }
+);
+
+When(
+  "scenarios {string} and {string} are compared using scenario scoring",
+  function (this: OrgModelWorld, firstScenarioId: string, secondScenarioId: string) {
+    assert.ok(this.lastScenarioScoringRequest, "No scenario scoring request provided");
+    this.lastScenarioComparison = this.driver.compareScenarios(
+      [firstScenarioId, secondScenarioId],
+      this.lastScenarioScoringRequest
+    );
+  }
+);
+
+When(
   "scenario {string} is scored and marked ready with scoring",
   function (this: OrgModelWorld, scenarioId: string) {
     assert.ok(this.lastScenarioScoringRequest, "No scenario scoring request provided");
@@ -249,6 +271,49 @@ Then("ranked scenarios have deterministic score ordering", function (this: OrgMo
   assert.equal(this.rankedScenarioScorecards.length, 2);
   const [first, second] = this.rankedScenarioScorecards;
   assert.ok(first.totalScore > second.totalScore, "Expected strict deterministic ordering by score");
+});
+
+Then(
+  "scenario {string} diff includes change {string} for entity {string}",
+  function (this: OrgModelWorld, scenarioId: string, changeType: string, entityId: string) {
+    const diff = this.lastScenarioDiff?.scenarioId === scenarioId ? this.lastScenarioDiff : this.driver.getScenarioDiff(scenarioId);
+    const match = diff.changes.find((change) => change.changeType === changeType && change.entityId === entityId);
+    assert.ok(match, `Expected diff to include ${changeType} for ${entityId}`);
+  }
+);
+
+Then(
+  "scenario {string} diff reports baseline parent {string} and scenario parent {string} for entity {string}",
+  function (
+    this: OrgModelWorld,
+    scenarioId: string,
+    expectedBaselineParentId: string,
+    expectedScenarioParentId: string,
+    entityId: string
+  ) {
+    const diff = this.lastScenarioDiff?.scenarioId === scenarioId ? this.lastScenarioDiff : this.driver.getScenarioDiff(scenarioId);
+    const match = diff.changes.find((change) => change.entityId === entityId && change.changeType === "reparent_unit");
+    assert.ok(match, `Expected reparent diff for ${entityId}`);
+    assert.equal(match?.baselineParentId, expectedBaselineParentId);
+    assert.equal(match?.scenarioParentId, expectedScenarioParentId);
+  }
+);
+
+Then("scenario comparison baseline is {string}", function (this: OrgModelWorld, baselineId: string) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  assert.equal(comparison.baselineId, baselineId);
+});
+
+Then("scenario comparison rank {int} is {string}", function (this: OrgModelWorld, rank: number, scenarioId: string) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  const row = comparison.rows.find((candidate) => candidate.rank === rank);
+  assert.ok(row, `Expected comparison rank ${rank}`);
+  assert.equal(row?.scenarioId, scenarioId);
+});
+
+Then("scenario comparison includes {int} rows", function (this: OrgModelWorld, expectedRows: number) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  assert.equal(comparison.rows.length, expectedRows);
 });
 
 Then(
