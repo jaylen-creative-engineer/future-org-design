@@ -149,6 +149,54 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+    @SCN-03 @SCN-05 @S-SCN-03
+    Scenario: Rank scenarios deterministically with the same scoring weights
+      Given scope "acme" has baseline "baseline-score-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-a" is created from baseline "baseline-score-v1" and unit "innovation" is added to that scenario
+      And scenario "scenario-b" is created from baseline "baseline-score-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-b"
+      And a scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 2,
+          "weights": {
+            "headcount": 0.4,
+            "spanCompliance": 0.4,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenarios "scenario-a" and "scenario-b" are ranked using scenario scoring
+      Then ranked scenarios are ordered as "scenario-b", "scenario-a"
+      And ranked scenarios have deterministic score ordering
+
+    @SCN-03 @SCN-05 @S-SCN-04
+    Scenario: Constraint violations can block scenario readiness
+      Given scope "acme" has baseline "baseline-score-v2" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-violation" is created from baseline "baseline-score-v2"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-violation"
+      And unit "innovation" is added to scenario "scenario-violation" under parent "platform"
+      And unit "data" is added to scenario "scenario-violation" under parent "platform"
+      And a blocking scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 1,
+          "weights": {
+            "headcount": 0.2,
+            "spanCompliance": 0.6,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenario "scenario-violation" is scored and marked ready with scoring
+      Then the operation fails with error code "SCENARIO_CONSTRAINTS_VIOLATED"
+      And scenario "scenario-violation" has score violation code "SPAN_TARGET_EXCEEDED"
+      And scenario "scenario-violation" has score violation code "MAX_DEPTH_EXCEEDED"
+      And scenario "scenario-violation" ready block is true
+      And scenario "scenario-violation" state is "draft"
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01

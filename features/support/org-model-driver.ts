@@ -47,6 +47,34 @@ export interface RecommendationRequest {
   idempotencyKey?: string;
 }
 
+export interface ScenarioScoringWeights {
+  headcount: number;
+  spanCompliance: number;
+  complexity: number;
+}
+
+export interface ScenarioScoringRequest {
+  targetSpan?: number;
+  maxDepth?: number;
+  weights?: Partial<ScenarioScoringWeights>;
+  blockReadyOnViolation?: boolean;
+}
+
+export interface ScenarioScorecard {
+  scenarioId: string;
+  baselineId: string;
+  totalScore: number;
+  headcountScore: number;
+  spanComplianceScore: number;
+  complexityScore: number;
+  headcountDelta: number;
+  spanViolations: number;
+  complexityChangeCount: number;
+  maxDepth: number;
+  violationCodes: string[];
+  readyBlocked: boolean;
+}
+
 export type SuggestedChangeAction = "reparent_unit" | "add_unit" | "remove_unit";
 
 export interface SuggestedChange {
@@ -128,6 +156,52 @@ function cloneRecommendationDraft(draft: RecommendationDraft): RecommendationDra
   };
 }
 
+const DEFAULT_SCENARIO_SCORING_WEIGHTS: Readonly<ScenarioScoringWeights> = {
+  headcount: 0.34,
+  spanCompliance: 0.33,
+  complexity: 0.33
+};
+
+function clamp01(value: number): number {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+}
+
+function normalizeScoringWeights(weights?: Partial<ScenarioScoringWeights>): ScenarioScoringWeights {
+  const merged: ScenarioScoringWeights = {
+    headcount: weights?.headcount ?? DEFAULT_SCENARIO_SCORING_WEIGHTS.headcount,
+    spanCompliance: weights?.spanCompliance ?? DEFAULT_SCENARIO_SCORING_WEIGHTS.spanCompliance,
+    complexity: weights?.complexity ?? DEFAULT_SCENARIO_SCORING_WEIGHTS.complexity
+  };
+
+  if (merged.headcount < 0 || merged.spanCompliance < 0 || merged.complexity < 0) {
+    throw new OrgModelError("INVALID_SCORING_WEIGHTS", "Scenario scoring weights must be non-negative");
+  }
+
+  const weightSum = merged.headcount + merged.spanCompliance + merged.complexity;
+  if (weightSum <= 0) {
+    throw new OrgModelError("INVALID_SCORING_WEIGHTS", "Scenario scoring weights must sum to a positive value");
+  }
+
+  return {
+    headcount: merged.headcount / weightSum,
+    spanCompliance: merged.spanCompliance / weightSum,
+    complexity: merged.complexity / weightSum
+  };
+}
+
+function cloneScenarioScorecard(scorecard: ScenarioScorecard): ScenarioScorecard {
+  return {
+    ...scorecard,
+    violationCodes: [...scorecard.violationCodes]
+  };
+}
+
 class DeterministicAdkRecommendationAdapter implements AdkRecommendationAdapter {
   constructor(private readonly fixtureId?: string) {}
 
@@ -165,6 +239,7 @@ export class InMemoryOrgModelDriver {
     { baselineId: string; scopeId: string; units: Map<string, { id: string; name: string; parentId?: string }> }
   >();
   private readonly scenarios = new Map<string, ScenarioView>();
+  private readonly scenarioScores = new Map<string, ScenarioScorecard>();
   private readonly recommendations = new Map<string, RecommendationArtifact>();
   private readonly recommendationIdempotencyIndex = new Map<string, string>();
   private recommendationCounter = 0;
@@ -299,6 +374,148 @@ export class InMemoryOrgModelDriver {
 
   archiveScenario(scenarioId: string): void {
     this.transitionScenarioState(scenarioId, "archived");
+  }
+
+  scoreScenario(scenarioId: string, request: ScenarioScoringRequest): ScenarioScorecard {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      throw new OrgModelError("SCENARIO_NOT_FOUND", `Scenario ${scenarioId} does not exist`);
+    }
+    const baseline = this.baselines.get(scenario.baselineId);
+    if (!baseline) {
+      throw new OrgModelError("BASELINE_NOT_FOUND", `Baseline ${scenario.baselineId} does not exist`);
+    }
+    if (typeof request.targetSpan !== "number" || request.targetSpan < 0) {
+      throw new OrgModelError("INVALID_SCORING_REQUEST", "Scenario scoring targetSpan must be a non-negative number");
+    }
+    if (typeof request.maxDepth !== "number" || request.maxDepth < 0) {
+      throw new OrgModelError("INVALID_SCORING_REQUEST", "Scenario scoring maxDepth must be a non-negative number");
+    }
+
+    const normalizedWeights = normalizeScoringWeights(request.weights);
+    const scenarioUnitIds = [...scenario.units.keys()].sort((left, right) => left.localeCompare(right));
+
+    const directReportCount = new Map<string, number>();
+    for (const unit of scenario.units.values()) {
+      if (!unit.parentId) {
+        continue;
+      }
+      directReportCount.set(unit.parentId, (directReportCount.get(unit.parentId) ?? 0) + 1);
+    }
+
+    const depthByUnit = new Map<string, number>();
+    const getDepth = (unitId: string): number => {
+      const knownDepth = depthByUnit.get(unitId);
+      if (knownDepth !== undefined) {
+        return knownDepth;
+      }
+
+      let depth = 0;
+      let cursor = scenario.units.get(unitId)?.parentId;
+      const visited = new Set<string>([unitId]);
+      while (cursor) {
+        if (visited.has(cursor)) {
+          throw new OrgModelError("CYCLE_DETECTED", "Scenario contains a cycle and cannot be scored");
+        }
+        visited.add(cursor);
+        depth += 1;
+        cursor = scenario.units.get(cursor)?.parentId;
+      }
+      depthByUnit.set(unitId, depth);
+      return depth;
+    };
+
+    let maxDepth = 0;
+    for (const unitId of scenarioUnitIds) {
+      maxDepth = Math.max(maxDepth, getDepth(unitId));
+    }
+
+    let spanViolations = 0;
+    for (const unitId of scenarioUnitIds) {
+      const directCount = directReportCount.get(unitId) ?? 0;
+      if (directCount > request.targetSpan) {
+        spanViolations += directCount - request.targetSpan;
+      }
+    }
+
+    const complexityChangeCount = scenarioUnitIds.reduce((changes, unitId) => {
+      const scenarioParentId = scenario.units.get(unitId)?.parentId;
+      const baselineParentId = baseline.units.get(unitId)?.parentId;
+      return scenarioParentId === baselineParentId ? changes : changes + 1;
+    }, 0);
+    const baselineSize = Math.max(1, baseline.units.size);
+    const scenarioSize = Math.max(1, scenario.units.size);
+
+    const headcountDelta = scenario.units.size - baseline.units.size;
+    const headcountScore = clamp01(1 - Math.abs(headcountDelta) / baselineSize);
+    const spanComplianceScore = clamp01(1 - spanViolations / scenarioSize);
+    const complexityScore = clamp01(1 - complexityChangeCount / scenarioSize);
+
+    const violationCodes: string[] = [];
+    if (spanViolations > 0) {
+      violationCodes.push("SPAN_TARGET_EXCEEDED");
+    }
+    if (maxDepth > request.maxDepth) {
+      violationCodes.push("MAX_DEPTH_EXCEEDED");
+    }
+
+    const totalScore = clamp01(
+      headcountScore * normalizedWeights.headcount +
+        spanComplianceScore * normalizedWeights.spanCompliance +
+        complexityScore * normalizedWeights.complexity
+    );
+
+    const scorecard: ScenarioScorecard = {
+      scenarioId,
+      baselineId: scenario.baselineId,
+      totalScore,
+      headcountScore,
+      spanComplianceScore,
+      complexityScore,
+      headcountDelta,
+      spanViolations,
+      complexityChangeCount,
+      maxDepth,
+      violationCodes,
+      readyBlocked: (request.blockReadyOnViolation ?? false) && violationCodes.length > 0
+    };
+    this.scenarioScores.set(scenarioId, scorecard);
+    return cloneScenarioScorecard(scorecard);
+  }
+
+  rankScenarios(scenarioIds: string[], request: ScenarioScoringRequest): ScenarioScorecard[] {
+    const uniqueScenarioIds = [...new Set(scenarioIds)];
+    const scorecards = uniqueScenarioIds.map((scenarioId) => this.scoreScenario(scenarioId, request));
+    scorecards.sort((left, right) => {
+      if (right.totalScore !== left.totalScore) {
+        return right.totalScore - left.totalScore;
+      }
+      if (left.violationCodes.length !== right.violationCodes.length) {
+        return left.violationCodes.length - right.violationCodes.length;
+      }
+      return left.scenarioId.localeCompare(right.scenarioId);
+    });
+    return scorecards;
+  }
+
+  markScenarioReadyWithScoring(scenarioId: string, request: ScenarioScoringRequest): ScenarioScorecard {
+    const scorecard = this.scoreScenario(scenarioId, request);
+    if (scorecard.readyBlocked) {
+      throw new OrgModelError(
+        "SCENARIO_CONSTRAINTS_VIOLATED",
+        `Scenario ${scenarioId} violates scoring constraints and cannot transition to ready`
+      );
+    }
+    this.markScenarioReady(scenarioId);
+    return scorecard;
+  }
+
+  getScenarioScore(scenarioId: string): ScenarioScorecard {
+    const scorecard = this.scenarioScores.get(scenarioId);
+    if (!scorecard) {
+      throw new OrgModelError("SCENARIO_SCORE_NOT_FOUND", `Scenario ${scenarioId} has not been scored`);
+    }
+    return cloneScenarioScorecard(scorecard);
   }
 
   getScenarioState(scenarioId: string): ScenarioState {
