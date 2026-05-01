@@ -2,7 +2,12 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import { OrgModelError } from "../support/org-model-driver.js";
 import { RECOMMENDATION_GOLDEN_FIXTURES } from "../support/org-model-driver.js";
-import type { IngestPayload, RecommendationArtifact, RecommendationRequest } from "../support/org-model-driver.js";
+import type {
+  IngestPayload,
+  RecommendationArtifact,
+  RecommendationRequest,
+  ScenarioScoringRequest
+} from "../support/org-model-driver.js";
 import { OrgModelWorld } from "../support/world.js";
 
 function parsePayload(docString: string): IngestPayload {
@@ -11,6 +16,10 @@ function parsePayload(docString: string): IngestPayload {
 
 function parseRecommendationRequest(docString: string): RecommendationRequest {
   return JSON.parse(docString) as RecommendationRequest;
+}
+
+function parseScenarioScoringRequest(docString: string): ScenarioScoringRequest {
+  return JSON.parse(docString) as ScenarioScoringRequest;
 }
 
 function recommendationOrThrow(world: OrgModelWorld): RecommendationArtifact {
@@ -138,6 +147,18 @@ When(
 );
 
 When(
+  "unit {string} is added to scenario {string} under parent {string}",
+  function (this: OrgModelWorld, unitId: string, scenarioId: string, parentId: string) {
+    this.driver.addUnitToScenario(scenarioId, unitId);
+    this.driver.moveScenarioSubtree(scenarioId, unitId, parentId);
+  }
+);
+
+When("unit {string} is removed from scenario {string}", function (this: OrgModelWorld, unitId: string, scenarioId: string) {
+  this.driver.removeUnitFromScenario(scenarioId, unitId);
+});
+
+When(
   "subtree rooted at {string} is moved under {string} in scenario {string}",
   function (this: OrgModelWorld, unitId: string, nextParentId: string, scenarioId: string) {
     this.driver.moveScenarioSubtree(scenarioId, unitId, nextParentId);
@@ -181,6 +202,134 @@ Then(
   "baseline {string} unit {string} reports to {string}",
   function (this: OrgModelWorld, baselineId: string, unitId: string, expectedParentId: string) {
     assert.equal(this.driver.baselineParentOf(baselineId, unitId), expectedParentId);
+  }
+);
+
+Given("a scenario scoring request:", function (this: OrgModelWorld, docString: string) {
+  this.lastScenarioScoringRequest = parseScenarioScoringRequest(docString);
+});
+
+Given("a blocking scenario scoring request:", function (this: OrgModelWorld, docString: string) {
+  const parsed = parseScenarioScoringRequest(docString);
+  this.lastScenarioScoringRequest = {
+    ...parsed,
+    blockReadyOnViolation: true
+  };
+});
+
+When(
+  "scenarios {string} and {string} are ranked using scenario scoring",
+  function (this: OrgModelWorld, firstScenarioId: string, secondScenarioId: string) {
+    assert.ok(this.lastScenarioScoringRequest, "No scenario scoring request provided");
+    this.rankedScenarioScorecards = this.driver.rankScenarios(
+      [firstScenarioId, secondScenarioId],
+      this.lastScenarioScoringRequest
+    );
+    this.lastScenarioScorecard = this.rankedScenarioScorecards[0];
+  }
+);
+
+When(
+  "scenario {string} is diffed against its baseline",
+  function (this: OrgModelWorld, scenarioId: string) {
+    this.lastScenarioDiff = this.driver.diffScenarioAgainstBaseline(scenarioId);
+  }
+);
+
+When(
+  "scenarios {string} and {string} are compared using scenario scoring",
+  function (this: OrgModelWorld, firstScenarioId: string, secondScenarioId: string) {
+    assert.ok(this.lastScenarioScoringRequest, "No scenario scoring request provided");
+    this.lastScenarioComparison = this.driver.compareScenarios(
+      [firstScenarioId, secondScenarioId],
+      this.lastScenarioScoringRequest
+    );
+  }
+);
+
+When(
+  "scenario {string} is scored and marked ready with scoring",
+  function (this: OrgModelWorld, scenarioId: string) {
+    assert.ok(this.lastScenarioScoringRequest, "No scenario scoring request provided");
+    try {
+      this.lastScenarioScorecard = this.driver.markScenarioReadyWithScoring(scenarioId, this.lastScenarioScoringRequest);
+      this.lastError = undefined;
+    } catch (error) {
+      this.lastError = error as OrgModelError;
+      this.lastScenarioScorecard = this.driver.getScenarioScore(scenarioId);
+    }
+  }
+);
+
+Then("ranked scenarios are ordered as {string}, {string}", function (this: OrgModelWorld, firstId: string, secondId: string) {
+  assert.equal(this.rankedScenarioScorecards.length, 2);
+  assert.equal(this.rankedScenarioScorecards[0]?.scenarioId, firstId);
+  assert.equal(this.rankedScenarioScorecards[1]?.scenarioId, secondId);
+});
+
+Then("ranked scenarios have deterministic score ordering", function (this: OrgModelWorld) {
+  assert.equal(this.rankedScenarioScorecards.length, 2);
+  const [first, second] = this.rankedScenarioScorecards;
+  assert.ok(first.totalScore > second.totalScore, "Expected strict deterministic ordering by score");
+});
+
+Then(
+  "scenario {string} diff includes change {string} for entity {string}",
+  function (this: OrgModelWorld, scenarioId: string, changeType: string, entityId: string) {
+    const diff = this.lastScenarioDiff?.scenarioId === scenarioId ? this.lastScenarioDiff : this.driver.getScenarioDiff(scenarioId);
+    const match = diff.changes.find((change) => change.changeType === changeType && change.entityId === entityId);
+    assert.ok(match, `Expected diff to include ${changeType} for ${entityId}`);
+  }
+);
+
+Then(
+  "scenario {string} diff reports baseline parent {string} and scenario parent {string} for entity {string}",
+  function (
+    this: OrgModelWorld,
+    scenarioId: string,
+    expectedBaselineParentId: string,
+    expectedScenarioParentId: string,
+    entityId: string
+  ) {
+    const diff = this.lastScenarioDiff?.scenarioId === scenarioId ? this.lastScenarioDiff : this.driver.getScenarioDiff(scenarioId);
+    const match = diff.changes.find((change) => change.entityId === entityId && change.changeType === "reparent_unit");
+    assert.ok(match, `Expected reparent diff for ${entityId}`);
+    assert.equal(match?.baselineParentId, expectedBaselineParentId);
+    assert.equal(match?.scenarioParentId, expectedScenarioParentId);
+  }
+);
+
+Then("scenario comparison baseline is {string}", function (this: OrgModelWorld, baselineId: string) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  assert.equal(comparison.baselineId, baselineId);
+});
+
+Then("scenario comparison rank {int} is {string}", function (this: OrgModelWorld, rank: number, scenarioId: string) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  const row = comparison.rows.find((candidate) => candidate.rank === rank);
+  assert.ok(row, `Expected comparison rank ${rank}`);
+  assert.equal(row?.scenarioId, scenarioId);
+});
+
+Then("scenario comparison includes {int} rows", function (this: OrgModelWorld, expectedRows: number) {
+  const comparison = this.lastScenarioComparison ?? this.driver.getLastScenarioComparison();
+  assert.equal(comparison.rows.length, expectedRows);
+});
+
+Then(
+  "scenario {string} has score violation code {string}",
+  function (this: OrgModelWorld, scenarioId: string, violationCode: string) {
+    const scorecard = this.driver.getScenarioScore(scenarioId);
+    assert.ok(scorecard.violationCodes.includes(violationCode));
+  }
+);
+
+Then(
+  "scenario {string} ready block is {word}",
+  function (this: OrgModelWorld, scenarioId: string, readyBlockedToken: string) {
+    const expectedReadyBlocked = readyBlockedToken === "true";
+    const scorecard = this.driver.getScenarioScore(scenarioId);
+    assert.equal(scorecard.readyBlocked, expectedReadyBlocked);
   }
 );
 

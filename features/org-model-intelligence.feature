@@ -149,6 +149,89 @@ Feature: Org model intelligence requirements
       And scenario "scenario-a" unit "platform" reports to "ops"
       And baseline "baseline-v1" unit "platform" reports to "engineering"
 
+    @SCN-03 @SCN-05 @S-SCN-03
+    Scenario: Rank scenarios deterministically with the same scoring weights
+      Given scope "acme" has baseline "baseline-score-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-a" is created from baseline "baseline-score-v1" and unit "innovation" is added to that scenario
+      And scenario "scenario-b" is created from baseline "baseline-score-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-b"
+      And a scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 2,
+          "weights": {
+            "headcount": 0.4,
+            "spanCompliance": 0.4,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenarios "scenario-a" and "scenario-b" are ranked using scenario scoring
+      Then ranked scenarios are ordered as "scenario-b", "scenario-a"
+      And ranked scenarios have deterministic score ordering
+
+    @SCN-03 @SCN-05 @S-SCN-04
+    Scenario: Constraint violations can block scenario readiness
+      Given scope "acme" has baseline "baseline-score-v2" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-violation" is created from baseline "baseline-score-v2"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-violation"
+      And unit "innovation" is added to scenario "scenario-violation" under parent "platform"
+      And unit "data" is added to scenario "scenario-violation" under parent "platform"
+      And a blocking scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 1,
+          "weights": {
+            "headcount": 0.2,
+            "spanCompliance": 0.6,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenario "scenario-violation" is scored and marked ready with scoring
+      Then the operation fails with error code "SCENARIO_CONSTRAINTS_VIOLATED"
+      And scenario "scenario-violation" has score violation code "SPAN_TARGET_EXCEEDED"
+      And scenario "scenario-violation" has score violation code "MAX_DEPTH_EXCEEDED"
+      And scenario "scenario-violation" ready block is true
+      And scenario "scenario-violation" state is "draft"
+
+    @SCN-04 @S-SCN-02
+    Scenario: Diff a scenario against baseline with stable change references
+      Given scope "acme" has baseline "baseline-diff-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-diff-a" is created from baseline "baseline-diff-v1"
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-diff-a"
+      And unit "innovation" is added to scenario "scenario-diff-a" under parent "platform"
+      And unit "innovation" is removed from scenario "scenario-diff-a"
+      When scenario "scenario-diff-a" is diffed against its baseline
+      Then scenario "scenario-diff-a" diff includes change "reparent_unit" for entity "platform"
+      And scenario "scenario-diff-a" diff reports baseline parent "engineering" and scenario parent "ops" for entity "platform"
+
+    @SCN-06 @S-SCN-05
+    Scenario: Compare scenarios with ranked tabular metrics
+      Given scope "acme" has baseline "baseline-compare-v1" with units "engineering", "platform", and "ops" and reporting line from "platform" to "engineering"
+      And scenario "scenario-compare-a" is created from baseline "baseline-compare-v1"
+      And scenario "scenario-compare-b" is created from baseline "baseline-compare-v1" and unit "innovation" is added to that scenario
+      And subtree rooted at "platform" is moved under "ops" in scenario "scenario-compare-a"
+      And a scenario scoring request:
+        """
+        {
+          "targetSpan": 1,
+          "maxDepth": 2,
+          "weights": {
+            "headcount": 0.5,
+            "spanCompliance": 0.3,
+            "complexity": 0.2
+          }
+        }
+        """
+      When scenarios "scenario-compare-a" and "scenario-compare-b" are compared using scenario scoring
+      Then scenario comparison baseline is "baseline-compare-v1"
+      And scenario comparison rank 1 is "scenario-compare-a"
+      And scenario comparison rank 2 is "scenario-compare-b"
+      And scenario comparison includes 2 rows
+
   Rule: REC recommendation generation and review workflow behavior
 
     @REC-01 @REC-02 @REC-03 @S-REC-01
