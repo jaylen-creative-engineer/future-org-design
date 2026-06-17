@@ -89,6 +89,7 @@ p { margin: 0; }
 
 .eyebrow {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
@@ -134,28 +135,63 @@ p { margin: 0; }
 /* Category chips                                                          */
 /* ----------------------------------------------------------------------- */
 
-.chips {
+.segmented-wrap {
   display: flex;
-  gap: 8px;
   justify-content: center;
-  flex-wrap: wrap;
   margin-bottom: 48px;
 }
 
-.chip {
-  font-size: 13px;
-  color: var(--text-dim);
-  padding: 8px 16px;
-  border-radius: 999px;
+.segmented {
+  position: relative;
+  display: inline-flex;
+  gap: 2px;
+  padding: 5px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.chip.active, .chip:hover {
-  color: var(--text);
-  border-color: var(--border-strong);
-  background: rgba(255, 255, 255, 0.06);
+.seg {
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--text-dim);
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+
+.seg:hover { color: var(--text); }
+.seg.active { color: var(--text); }
+
+.seg-indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-strong);
+  z-index: 0;
+  transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
+              width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, width;
+}
+
+/* When the control wraps (narrow screens) the sliding pill can't track
+   rows, so fall back to a static highlight on the active item. */
+@media (max-width: 560px) {
+  .seg-indicator { display: none; }
+  .seg.active { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-strong); }
 }
 
 /* ----------------------------------------------------------------------- */

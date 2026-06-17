@@ -1,4 +1,5 @@
 import Motion from "./components/Motion.js";
+import WorkspaceTabs from "./components/WorkspaceTabs.js";
 import {
   Arrow,
   ApiIcon,
@@ -134,46 +135,7 @@ export default function HomePage() {
             <p>Navigate the baseline, branch a scenario, review the recommendation — without leaving the loop.</p>
           </div>
 
-          <div className="chips reveal">
-            <span className="chip active">Baseline</span>
-            <span className="chip">Scenarios</span>
-            <span className="chip">Recommendations</span>
-            <span className="chip">Monitoring</span>
-            <span className="chip">API</span>
-          </div>
-
-          <div className="showcase reveal">
-            <div className="browser-bar">
-              <span className="dotrow"><i /><i /><i /></span>
-              <span className="url">app.futureorg.design / baseline</span>
-            </div>
-            <div className="showcase-body">
-              <aside className="showcase-side">
-                <div className="side-item active"><span className="swatch ph-1" /> Baseline</div>
-                <div className="side-item"><span className="swatch ph-4" /> Scenarios</div>
-                <div className="side-item"><span className="swatch ph-3" /> Recommendations</div>
-                <div className="side-item"><span className="swatch ph-2" /> Monitoring</div>
-                <div className="side-item"><span className="swatch ph-6" /> Audit log</div>
-              </aside>
-              <div className="showcase-main">
-                <div className="org-tree">
-                  <div className="tree-row">
-                    <div className="node lead"><span className="avatar ph-1" /> Chief Executive</div>
-                  </div>
-                  <div className="tree-row">
-                    <div className="node"><span className="avatar ph-4" /> Engineering</div>
-                    <div className="node"><span className="avatar ph-3" /> Operations</div>
-                    <div className="node"><span className="avatar ph-5" /> Revenue</div>
-                  </div>
-                  <div className="tree-row">
-                    <div className="node"><span className="avatar ph-2" /> Platform</div>
-                    <div className="node"><span className="avatar ph-6" /> Product</div>
-                    <div className="node ghost"><span className="avatar ph-6" /> + proposed team</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <WorkspaceTabs />
         </div>
       </section>
 
