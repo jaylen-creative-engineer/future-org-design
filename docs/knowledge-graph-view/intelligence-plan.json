@@ -69,9 +69,9 @@
       "productPromise": "Deliver end-user workflows from baseline through monitored decisions.",
       "graphPageIds": ["buyers-and-pain", "closed-loop-value-chain", "market-and-tam"],
       "targetUnits": 10,
-      "builtUnits": 1,
+      "builtUnits": 2,
       "status": "in_progress",
-      "notes": "Next.js 16 app shell (app/layout.tsx, app/page.tsx) is present; org/scenario/recommendation workflows are not exposed in the UI yet."
+      "notes": "Next.js 16 app shell plus an editorial marketing landing page (app/page.tsx) rendered from a testable content model (src/landing/landing-content.ts) with executable scenarios in features/experience-landing-page.feature (@EXP-01 to @EXP-06); org/scenario/recommendation workflows are not exposed in the UI yet."
     },
     {
       "id": "environmental-intelligence",
