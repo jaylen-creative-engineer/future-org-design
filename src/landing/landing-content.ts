@@ -20,6 +20,11 @@ export type LandingSection = {
   name: string;
   /** The section's display heading. */
   heading: string;
+  /**
+   * Optional phrase within `heading` rendered in italic serif, matching the
+   * editorial emphasis motif ("same rigor", "a loop", ...).
+   */
+  emphasis?: string;
 };
 
 export type ProcessStep = {
@@ -77,7 +82,8 @@ export const landingContent: LandingContent = {
       id: "research",
       index: "02",
       name: "Research",
-      heading: "We develop org models with the same rigor researchers bring to data"
+      heading: "We develop org models with the same rigor researchers bring to data",
+      emphasis: "same rigor"
     },
     {
       id: "proof",
@@ -96,7 +102,8 @@ export const landingContent: LandingContent = {
       id: "process",
       index: "05",
       name: "Process",
-      heading: "Working with us is a loop, not a project"
+      heading: "Working with us is a loop, not a project",
+      emphasis: "a loop"
     },
     {
       id: "updates",
@@ -173,4 +180,14 @@ export function sectionsAreSequential(content: LandingContent): boolean {
 /** True when process steps are numbered 1..n in display order. */
 export function processStepsAreSequential(content: LandingContent): boolean {
   return content.processSteps.every((step, i) => step.number === i + 1);
+}
+
+/**
+ * True when every declared section emphasis is an actual phrase of its
+ * heading, so the italic-serif rendering can never silently drop copy.
+ */
+export function emphasisPhrasesAreInHeadings(content: LandingContent): boolean {
+  return content.sections.every(
+    (section) => section.emphasis === undefined || section.heading.includes(section.emphasis)
+  );
 }

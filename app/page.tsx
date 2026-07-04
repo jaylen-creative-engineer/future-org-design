@@ -22,6 +22,20 @@ function Kicker({ id }: KickerProps) {
   );
 }
 
+/** Section heading with the declared emphasis phrase in italic serif. */
+function Heading({ id }: KickerProps) {
+  const s = section[id];
+  const at = s.emphasis ? s.heading.indexOf(s.emphasis) : -1;
+  if (!s.emphasis || at < 0) return <h2>{s.heading}</h2>;
+  return (
+    <h2>
+      {s.heading.slice(0, at)}
+      <em>{s.emphasis}</em>
+      {s.heading.slice(at + s.emphasis.length)}
+    </h2>
+  );
+}
+
 const SWATCH_COLORS = [
   "#e8564a", "#f0883e", "#f4c542", "#8fb84a", "#3e9e6e", "#3aa3a0", "#4a7fd4", "#6a5ae0",
   "#9a55c8", "#d4569a", "#c0473e", "#e0a04a", "#5a6ee0", "#44b0c4", "#c46a44", "#7a8a3e",
@@ -60,7 +74,7 @@ export default function HomePage() {
       {/* ===================== HERO ===================== */}
       <header className="hero" id="top">
         <div className="container">
-          <SpectrumBars count={64} seed={11} />
+          <SpectrumBars count={64} seed={11} animated />
           <div style={{ height: 64 }} />
           <h1>
             {hero.lead} <em>{hero.emphasis}</em> {hero.trail}
@@ -93,7 +107,7 @@ export default function HomePage() {
         <div className="container">
           <Kicker id="research" />
           <div className="section-head">
-            <h2>{section.research.heading}</h2>
+            <Heading id="research" />
           </div>
 
           <div className="research-grid">
@@ -127,10 +141,11 @@ export default function HomePage() {
       <section className="section" id="proof">
         <div className="container">
           <Kicker id="proof" />
-          <h2 className="statement centered reveal">
-            Our platform is built for{" "}
-            <span className="rest">org designers, COOs, and people-ops teams</span>{" "}
-            that work with baselines, scenarios, recommendations, and monitoring.
+          <h2 className="statement reveal">
+            Our platform is built for org designers, COOs, and people-ops teams{" "}
+            <span className="rest">
+              that work with baselines, scenarios, recommendations, and monitoring.
+            </span>
           </h2>
         </div>
       </section>
@@ -140,7 +155,7 @@ export default function HomePage() {
         <div className="container">
           <Kicker id="platform" />
           <div className="section-head">
-            <h2>{section.platform.heading}</h2>
+            <Heading id="platform" />
           </div>
 
           <div className="suite-grid">
@@ -151,9 +166,12 @@ export default function HomePage() {
                 structural diff and an updated multi-criteria score — instantly, side by side.
               </p>
               <div className="suite-mock">
-                <div className="waveform" aria-hidden="true">
+                <div className="waveform animated" aria-hidden="true">
                   {Array.from({ length: 42 }, (_, i) => (
-                    <i key={i} style={{ height: `${22 + ((i * 37) % 58)}%` }} />
+                    <i
+                      key={i}
+                      style={{ height: `${22 + ((i * 37) % 58)}%`, animationDelay: `${-(i * 0.09)}s` }}
+                    />
                   ))}
                 </div>
                 <div className="mock-rows">
@@ -249,7 +267,7 @@ export default function HomePage() {
         <div className="container">
           <Kicker id="process" />
           <div className="section-head left">
-            <h2>{section.process.heading}</h2>
+            <Heading id="process" />
           </div>
 
           <div className="process-grid reveal">
@@ -275,7 +293,7 @@ export default function HomePage() {
               See open roles <Arrow width={15} height={15} />
             </a>
           </div>
-          <SpectrumBars count={30} seed={23} tall className="reveal" />
+          <SpectrumBars count={30} seed={23} tall animated className="reveal" />
         </div>
       </section>
 
@@ -284,7 +302,7 @@ export default function HomePage() {
         <div className="container">
           <Kicker id="updates" />
           <div className="section-head left">
-            <h2>{section.updates.heading}</h2>
+            <Heading id="updates" />
           </div>
 
           <div className="updates-grid">

@@ -2,6 +2,7 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { strict as assert } from "node:assert";
 import type { DataTable } from "@cucumber/cucumber";
 import {
+  emphasisPhrasesAreInHeadings,
   landingContent,
   processStepsAreSequential,
   sectionIndexSequence,
@@ -116,6 +117,26 @@ Then(
   "the updates section lists {int} dated progress cards",
   function (this: LandingWorld, count: number) {
     assert.equal(content(this).updates.length, count);
+  }
+);
+
+Then(
+  "every declared section emphasis is a phrase of its own heading",
+  function (this: LandingWorld) {
+    assert.equal(
+      emphasisPhrasesAreInHeadings(content(this)),
+      true,
+      "Every section emphasis must appear verbatim in its heading"
+    );
+  }
+);
+
+Then(
+  "the {string} section emphasizes {string}",
+  function (this: LandingWorld, id: string, phrase: string) {
+    const found = content(this).sections.find((s) => s.id === id);
+    assert.ok(found, `Expected a section with id "${id}"`);
+    assert.equal(found.emphasis, phrase);
   }
 );
 

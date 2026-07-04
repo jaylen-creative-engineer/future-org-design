@@ -129,6 +129,18 @@ p { margin: 0; }
 .bars.tall { height: 150px; gap: 4px; }
 .bars.tall > i { width: 10px; border-radius: 3px; }
 
+/* Traveling wave — each bar oscillates around its base height; the
+   per-bar negative animation-delay (set inline) phases the wave. */
+.bars.animated > i {
+  animation: bar-wave 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes bar-wave {
+  0%, 100% { transform: scaleY(0.55); }
+  50% { transform: scaleY(1.12); }
+}
+
 /* ----------------------------------------------------------------------- */
 /* Buttons                                                                 */
 /* ----------------------------------------------------------------------- */
@@ -233,10 +245,10 @@ p { margin: 0; }
 .hero { padding: 110px 0 130px; }
 
 .hero h1 {
-  font-size: clamp(42px, 6.4vw, 84px);
+  font-size: clamp(42px, 6.2vw, 80px);
   letter-spacing: -0.035em;
-  line-height: 1.02;
-  max-width: 17ch;
+  line-height: 1.04;
+  max-width: 21ch;
   margin-bottom: 44px;
 }
 
@@ -261,27 +273,33 @@ p { margin: 0; }
 
 .statement .rest { color: var(--ink-dim); }
 
-.statement.centered {
-  max-width: 30ch;
-  margin: 0 auto;
-  text-align: center;
-}
-
 .section-head {
-  max-width: 620px;
+  max-width: 720px;
   margin: 0 auto 64px;
   text-align: center;
 }
 
 .section-head h2 {
-  font-size: clamp(28px, 3.6vw, 46px);
-  letter-spacing: -0.03em;
+  font-size: clamp(25px, 3vw, 38px);
+  letter-spacing: -0.025em;
+  line-height: 1.18;
+  max-width: 28ch;
+  margin: 0 auto;
+}
+
+.section-head h2 em,
+.statement em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .section-head.left {
   margin-left: 0;
   text-align: left;
 }
+.section-head.left h2 { margin-left: 0; }
 
 /* ----------------------------------------------------------------------- */
 /* Research tiles                                                          */
@@ -395,6 +413,11 @@ p { margin: 0; }
   width: 4px;
   border-radius: 2px;
   background: rgba(243, 240, 234, 0.85);
+}
+
+.waveform.animated i {
+  animation: bar-wave 2.2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .mock-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }

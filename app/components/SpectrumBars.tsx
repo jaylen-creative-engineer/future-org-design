@@ -25,6 +25,8 @@ type SpectrumBarsProps = {
   className?: string;
   /** Render on the dark band variant (slightly muted). */
   onDark?: boolean;
+  /** Oscillate bar heights as a traveling wave (disabled by reduced motion). */
+  animated?: boolean;
 };
 
 export default function SpectrumBars({
@@ -32,7 +34,8 @@ export default function SpectrumBars({
   seed = 7,
   tall = false,
   className = "",
-  onDark = false
+  onDark = false,
+  animated = false
 }: SpectrumBarsProps) {
   const rand = seeded(seed);
   const bars = Array.from({ length: count }, (_, i) => {
@@ -42,14 +45,20 @@ export default function SpectrumBars({
   });
 
   return (
-    <div className={`bars ${tall ? "tall" : ""} ${className}`.trim()} aria-hidden="true">
+    <div
+      className={`bars ${tall ? "tall" : ""} ${animated ? "animated" : ""} ${className}`.trim()}
+      aria-hidden="true"
+    >
       {bars.map((b) => (
         <i
           key={b.key}
           style={{
             background: b.color,
             height: `${b.h}%`,
-            opacity: onDark ? 0.92 : 1
+            opacity: onDark ? 0.92 : 1,
+            // Negative phase offset per bar makes the oscillation travel
+            // left-to-right instead of pulsing in unison.
+            ...(animated ? { animationDelay: `${-(b.key * 0.11)}s` } : undefined)
           }}
         />
       ))}

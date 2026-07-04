@@ -54,3 +54,10 @@ Feature: Editorial marketing landing page
     Given the published landing page content
     Then the updates section lists 3 dated progress cards
     And every update card has a date, a title, and a summary
+
+  @EXP-07
+  Scenario: Section headings carry editorial serif emphasis
+    Given the published landing page content
+    Then every declared section emphasis is a phrase of its own heading
+    And the "research" section emphasizes "same rigor"
+    And the "process" section emphasizes "a loop"
