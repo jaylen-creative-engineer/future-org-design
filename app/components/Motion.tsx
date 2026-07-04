@@ -6,7 +6,6 @@ import { useEffect } from "react";
  * Client-only behaviors for the landing page:
  *  - reveal-on-scroll via IntersectionObserver (adds .is-visible)
  *  - nav background on scroll
- *  - pointer-tracked electric edge highlight on .card elements
  *
  * Rendered once near the root; it wires up document-level listeners and
  * observes any element carrying the `.reveal` class.
@@ -42,19 +41,8 @@ export default function Motion() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    // --- Pointer-tracked card glow ---------------------------------------
-    const onPointer = (e: PointerEvent) => {
-      const card = (e.target as HTMLElement)?.closest<HTMLElement>(".card");
-      if (!card) return;
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-      card.style.setProperty("--my", `${e.clientY - rect.top}px`);
-    };
-    if (!reduce) document.addEventListener("pointermove", onPointer);
-
     return () => {
       window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("pointermove", onPointer);
     };
   }, []);
 
