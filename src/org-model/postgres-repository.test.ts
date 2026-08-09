@@ -70,6 +70,7 @@ describe("PostgresOrgModelRepository.createScenarioFromBaseline", () => {
   });
 
   it("forks baseline snapshot units into a draft scenario transaction", async () => {
+    const originalSnapshot = structuredClone(baselineSnapshot);
     pgMocks.client.query.mockImplementation(async (statement) => {
       if (String(statement).includes("select snapshot_json")) {
         return { rows: [{ snapshot_json: baselineSnapshot }] };
@@ -102,10 +103,7 @@ describe("PostgresOrgModelRepository.createScenarioFromBaseline", () => {
     expect(queryText(6)).toBe("commit");
     expect(pgMocks.client.query).not.toHaveBeenCalledWith("rollback");
     expect(pgMocks.client.release).toHaveBeenCalledOnce();
-    expect(baselineSnapshot).toEqual([
-      expect.objectContaining({ unitId: "exec", parentId: undefined }),
-      expect.objectContaining({ unitId: "ops", parentId: "exec" }),
-    ]);
+    expect(baselineSnapshot).toEqual(originalSnapshot);
   });
 
   it("rolls back and preserves the baseline-not-found code when the snapshot is missing", async () => {
